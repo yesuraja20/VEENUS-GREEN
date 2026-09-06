@@ -1,0 +1,32 @@
+export const categories = [
+  {
+    id: "whole-spices",
+    name: "Whole Spices",
+    tamilName: "முழு மசாலா",
+    description: "Sun-dried, aromatic whole seeds, pods, and barks handpicked from heritage spice estates.",
+    itemCount: "9 Spices",
+    image: "https://images.unsplash.com/photo-1596040033229-a9821ebd058d?auto=format&fit=crop&w=800&q=80",
+    badge: "Heritage Harvest",
+    bgGradient: "from-amber-900/80 to-stone-900/90",
+  },
+  {
+    id: "powdered-spices",
+    name: "Powdered Spices",
+    tamilName: "மசாலா தூள்",
+    description: "Cold stone-ground at low temperatures to lock in volatile essential oils, vibrant color, and aroma.",
+    itemCount: "3 Spices",
+    image: "https://images.unsplash.com/photo-1615485290382-441e4d049cb5?auto=format&fit=crop&w=800&q=80",
+    badge: "Cold Stone-Ground",
+    bgGradient: "from-amber-800/80 to-emerald-950/90",
+  },
+  {
+    id: "cooking-essentials",
+    name: "Cooking Essentials",
+    tamilName: "சமையல் பொருட்கள்",
+    description: "Foundational culinary building blocks for authentic South Indian and pan-Indian home cooking.",
+    itemCount: "3 Essentials",
+    image: "https://images.unsplash.com/photo-1509358271058-acd22cc93898?auto=format&fit=crop&w=800&q=80",
+    badge: "Kitchen Staples",
+    bgGradient: "from-emerald-900/80 to-forest-950/90",
+  },
+];
