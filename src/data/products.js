@@ -17,7 +17,7 @@ export const products = [
     rating: 4.9,
     reviewCount: 248,
     isPopular: true,
-    image: "https://images.unsplash.com/photo-1509358271058-acd22cc93898?auto=format&fit=crop&w=800&q=80",
+    image: "/images/products/black-pepper.jpg",
     weights: [
       { label: "100g", weightGrams: 100, price: 149 },
       { label: "250g", weightGrams: 250, price: 349, badge: "Popular" },
@@ -40,7 +40,7 @@ export const products = [
     rating: 4.8,
     reviewCount: 186,
     isPopular: true,
-    image: "https://images.unsplash.com/photo-1615485290382-441e4d049cb5?auto=format&fit=crop&w=800&q=80",
+    image: "/images/products/cumin-seeds.jpg",
     weights: [
       { label: "100g", weightGrams: 100, price: 99 },
       { label: "250g", weightGrams: 250, price: 229, badge: "Popular" },
@@ -63,7 +63,7 @@ export const products = [
     rating: 4.9,
     reviewCount: 142,
     isPopular: false,
-    image: "https://images.unsplash.com/photo-1596040033229-a9821ebd058d?auto=format&fit=crop&w=800&q=80",
+    image: "/images/products/mustard-seeds.jpg",
     weights: [
       { label: "100g", weightGrams: 100, price: 59 },
       { label: "250g", weightGrams: 250, price: 129, badge: "Popular" },
@@ -86,7 +86,7 @@ export const products = [
     rating: 4.7,
     reviewCount: 118,
     isPopular: false,
-    image: "https://images.unsplash.com/photo-1621996346565-e3d5d6281699?auto=format&fit=crop&w=800&q=80",
+    image: "/images/products/fenugreek-seeds.jpg",
     weights: [
       { label: "100g", weightGrams: 100, price: 69 },
       { label: "250g", weightGrams: 250, price: 149, badge: "Popular" },
@@ -109,7 +109,7 @@ export const products = [
     rating: 4.9,
     reviewCount: 175,
     isPopular: true,
-    image: "https://images.unsplash.com/photo-1599940824399-b87987ceb72a?auto=format&fit=crop&w=800&q=80",
+    image: "/images/products/fennel-seeds.jpg",
     weights: [
       { label: "100g", weightGrams: 100, price: 89 },
       { label: "250g", weightGrams: 250, price: 199, badge: "Popular" },
@@ -132,7 +132,7 @@ export const products = [
     rating: 4.8,
     reviewCount: 134,
     isPopular: false,
-    image: "https://images.unsplash.com/photo-1589135233689-d5c24e030092?auto=format&fit=crop&w=800&q=80",
+    image: "/images/products/coriander-seeds.jpg",
     weights: [
       { label: "100g", weightGrams: 100, price: 69 },
       { label: "250g", weightGrams: 250, price: 149, badge: "Popular" },
@@ -155,7 +155,7 @@ export const products = [
     rating: 5.0,
     reviewCount: 312,
     isPopular: true,
-    image: "https://images.unsplash.com/photo-1628088062854-d1870b4553da?auto=format&fit=crop&w=800&q=80",
+    image: "/images/products/cardamom.jpg",
     weights: [
       { label: "50g", weightGrams: 50, price: 249 },
       { label: "100g", weightGrams: 100, price: 449, badge: "Popular" },
@@ -178,7 +178,7 @@ export const products = [
     rating: 4.9,
     reviewCount: 168,
     isPopular: true,
-    image: "https://images.unsplash.com/photo-1509358271058-acd22cc93898?auto=format&fit=crop&w=800&q=80",
+    image: "/images/products/cinnamon.jpg",
     weights: [
       { label: "50g", weightGrams: 50, price: 119 },
       { label: "100g", weightGrams: 100, price: 199, badge: "Popular" },
@@ -201,7 +201,7 @@ export const products = [
     rating: 4.8,
     reviewCount: 154,
     isPopular: false,
-    image: "https://images.unsplash.com/photo-1608686207856-001b95cf60ca?auto=format&fit=crop&w=800&q=80",
+    image: "/images/products/cloves.jpg",
     weights: [
       { label: "50g", weightGrams: 50, price: 149 },
       { label: "100g", weightGrams: 100, price: 269, badge: "Popular" },
@@ -224,7 +224,7 @@ export const products = [
     rating: 4.9,
     reviewCount: 220,
     isPopular: true,
-    image: "https://images.unsplash.com/photo-1596040033229-a9821ebd058d?auto=format&fit=crop&w=800&q=80",
+    image: "/images/products/asafoetida.jpg",
     weights: [
       { label: "50g", weightGrams: 50, price: 149 },
       { label: "100g", weightGrams: 100, price: 279, badge: "Popular" },
@@ -246,7 +246,7 @@ export const products = [
     rating: 5.0,
     reviewCount: 388,
     isPopular: true,
-    image: "https://images.unsplash.com/photo-1615485290382-441e4d049cb5?auto=format&fit=crop&w=800&q=80",
+    image: "/images/products/turmeric-powder.jpg",
     weights: [
       { label: "100g", weightGrams: 100, price: 89 },
       { label: "250g", weightGrams: 250, price: 189, badge: "Popular" },
@@ -269,7 +269,7 @@ export const products = [
     rating: 4.8,
     reviewCount: 98,
     isPopular: false,
-    image: "https://images.unsplash.com/photo-1615485500704-8e990f9900f7?auto=format&fit=crop&w=800&q=80",
+    image: "/images/products/ginger.jpg",
     weights: [
       { label: "100g", weightGrams: 100, price: 99 },
       { label: "250g", weightGrams: 250, price: 219, badge: "Popular" },
@@ -292,7 +292,7 @@ export const products = [
     rating: 4.9,
     reviewCount: 145,
     isPopular: true,
-    image: "https://images.unsplash.com/photo-1540148426945-6cf22a6b2383?auto=format&fit=crop&w=800&q=80",
+    image: "/images/products/garlic.jpg",
     weights: [
       { label: "250g", weightGrams: 250, price: 149 },
       { label: "500g", weightGrams: 500, price: 279, badge: "Popular" },
@@ -314,7 +314,7 @@ export const products = [
     rating: 4.8,
     reviewCount: 82,
     isPopular: false,
-    image: "https://images.unsplash.com/photo-1509358271058-acd22cc93898?auto=format&fit=crop&w=800&q=80",
+    image: "/images/products/nutmeg.jpg",
     weights: [
       { label: "50g (approx 6-8 pcs)", weightGrams: 50, price: 139 },
       { label: "100g", weightGrams: 100, price: 249, badge: "Popular" },
@@ -336,7 +336,7 @@ export const products = [
     rating: 5.0,
     reviewCount: 96,
     isPopular: true,
-    image: "https://images.unsplash.com/photo-1596040033229-a9821ebd058d?auto=format&fit=crop&w=800&q=80",
+    image: "/images/products/mace.jpg",
     weights: [
       { label: "25g", weightGrams: 25, price: 169 },
       { label: "50g", weightGrams: 50, price: 299, badge: "Popular" },
