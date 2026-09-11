@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { siteConfig } from "../config/siteConfig";
 import { generateWhatsAppInquiryUrl } from "../utils/whatsapp";
+import { useLanguage } from "../context/LanguageContext";
 import {
   Phone,
   MessageCircle,
@@ -15,6 +16,8 @@ import {
 } from "lucide-react";
 
 export default function ContactSection() {
+  const { t } = useLanguage();
+
   const [formData, setFormData] = useState({
     name: "",
     mobile: "",
@@ -27,15 +30,15 @@ export default function ContactSection() {
   const validate = () => {
     const errs = {};
     if (!formData.name.trim()) {
-      errs.name = "Please enter your name.";
+      errs.name = t("checkout.fullNameError") || "Please enter your name.";
     }
     const phoneRegex = /^[6-9]\d{9}$/;
     const clean = formData.mobile.replace(/\D/g, "");
     if (!clean || !phoneRegex.test(clean)) {
-      errs.mobile = "Please enter a valid 10-digit mobile number.";
+      errs.mobile = t("checkout.mobileError") || "Please enter a valid 10-digit mobile number.";
     }
     if (!formData.message.trim()) {
-      errs.message = "Please write your query or bulk inquiry message.";
+      errs.message = t("contact.yourMessage") ? `${t("contact.yourMessage")} required.` : "Please write your query or bulk inquiry message.";
     }
     setErrors(errs);
     return Object.keys(errs).length === 0;
@@ -45,7 +48,6 @@ export default function ContactSection() {
     e.preventDefault();
     if (!validate()) return;
 
-    // Simulate clean client-side submission without fake backend
     setIsSubmitted(true);
     setFormData({ name: "", mobile: "", message: "" });
   };
@@ -57,13 +59,13 @@ export default function ContactSection() {
         <div className="text-center max-w-3xl mx-auto mb-16">
           <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-forest-100 text-forest-800 text-xs font-bold uppercase tracking-widest mb-3">
             <Sparkles className="w-3.5 h-3.5 text-forest-600" />
-            <span>Direct Inquiries & Wholesale</span>
+            <span>{t("contact.sectionBadge") || "Direct Inquiries & Wholesale"}</span>
           </div>
           <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-bold text-forest-950 tracking-tight">
-            Connect With Our Spice Experts
+            {t("contact.sectionTitle") || "Connect With Our Spice Experts"}
           </h2>
           <p className="mt-4 text-forest-800/80 text-sm sm:text-base leading-relaxed">
-            Have questions about origin batches, custom kitchen quantities, or culinary recommendations? Reach out directly.
+            {t("contact.sectionDesc") || "Have questions about origin batches, custom kitchen quantities, or culinary recommendations? Reach out directly."}
           </p>
         </div>
 
@@ -86,7 +88,7 @@ export default function ContactSection() {
                   </div>
                   <div>
                     <h4 className="text-xs uppercase font-bold text-gold-300/80 tracking-wider">
-                      Customer Care Phone
+                      {t("contact.customerCarePhone") || "Customer Care Phone"}
                     </h4>
                     <a
                       href={`tel:${siteConfig.phone.replace(/\s+/g, "")}`}
@@ -104,7 +106,7 @@ export default function ContactSection() {
                   </div>
                   <div>
                     <h4 className="text-xs uppercase font-bold text-gold-300/80 tracking-wider">
-                      WhatsApp Instant Order
+                      {t("contact.whatsappOrder") || "WhatsApp Instant Order"}
                     </h4>
                     <a
                       href={generateWhatsAppInquiryUrl()}
@@ -114,7 +116,7 @@ export default function ContactSection() {
                     >
                       <span>{siteConfig.whatsappDisplayNumber}</span>
                       <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-600/60 text-emerald-200">
-                        Online
+                        {t("contact.onlineStatus") || "Online"}
                       </span>
                     </a>
                   </div>
@@ -127,7 +129,7 @@ export default function ContactSection() {
                   </div>
                   <div>
                     <h4 className="text-xs uppercase font-bold text-gold-300/80 tracking-wider">
-                      Email Inquiries
+                      {t("contact.emailInquiries") || "Email Inquiries"}
                     </h4>
                     <a
                       href={`mailto:${siteConfig.email}`}
@@ -145,7 +147,7 @@ export default function ContactSection() {
                   </div>
                   <div>
                     <h4 className="text-xs uppercase font-bold text-gold-300/80 tracking-wider">
-                      Registered Business Address
+                      {t("contact.registeredAddress") || "Registered Business Address"}
                     </h4>
                     <p className="text-xs sm:text-sm text-cream-200 leading-relaxed font-light mt-0.5">
                       {siteConfig.address.fullAddress}
@@ -160,7 +162,7 @@ export default function ContactSection() {
                   </div>
                   <div>
                     <h4 className="text-xs uppercase font-bold text-gold-300/80 tracking-wider">
-                      Dispatch & Support Hours
+                      {t("contact.hours") || "Dispatch & Support Hours"}
                     </h4>
                     <p className="text-xs text-cream-200 font-light mt-0.5">
                       {siteConfig.operatingHours}
@@ -178,7 +180,7 @@ export default function ContactSection() {
                 className="w-full py-3.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-cream-50 font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-md transition-all"
               >
                 <MessageCircle className="w-4 h-4" />
-                <span>Chat Directly with Spice Manager</span>
+                <span>{t("contact.chatManager") || "Chat Directly with Spice Manager"}</span>
               </a>
             </div>
           </div>
@@ -191,33 +193,33 @@ export default function ContactSection() {
                   <CheckCircle2 className="w-10 h-10" />
                 </div>
                 <h3 className="font-serif text-2xl font-bold text-forest-950">
-                  Message Received Successfully!
+                  {t("contact.successTitle") || "Message Received Successfully!"}
                 </h3>
                 <p className="text-xs sm:text-sm text-forest-700 max-w-md mx-auto leading-relaxed">
-                  Thank you for reaching out to Venus Green. Our spice curator will review your message and connect with you via mobile or WhatsApp shortly.
+                  {t("contact.successDesc") || "Thank you for reaching out to Venus Green. Our spice curator will review your message and connect with you shortly."}
                 </p>
                 <button
                   onClick={() => setIsSubmitted(false)}
                   className="mt-4 px-6 py-2.5 rounded-xl bg-forest-900 text-gold-300 text-xs font-bold uppercase tracking-wider"
                 >
-                  Send Another Message
+                  {t("contact.sendAnother") || "Send Another Message"}
                 </button>
               </div>
             ) : (
               <form onSubmit={handleSubmit} className="space-y-5">
                 <div>
                   <h3 className="font-serif text-2xl font-bold text-forest-950">
-                    Send Us a Message
+                    {t("contact.sendUsMessage") || "Send Us a Message"}
                   </h3>
                   <p className="text-xs text-forest-600 mt-1">
-                    Fill in your details below for custom order queries, bulk restaurant inquiries, or spice recommendations.
+                    {t("contact.formDesc") || "Fill in your details below for custom order queries, bulk restaurant inquiries, or spice recommendations."}
                   </p>
                 </div>
 
                 {/* Name */}
                 <div>
                   <label className="block text-xs font-bold text-forest-900 mb-1.5 uppercase tracking-wider">
-                    Your Name <span className="text-rose-500">*</span>
+                    {t("contact.yourName") || "Your Name"} <span className="text-rose-500">*</span>
                   </label>
                   <input
                     type="text"
@@ -226,7 +228,7 @@ export default function ContactSection() {
                       setFormData({ ...formData, name: e.target.value });
                       if (errors.name) setErrors({ ...errors, name: null });
                     }}
-                    placeholder="e.g. Priyadharshini"
+                    placeholder={t("checkout.fullNamePlaceholder") || "e.g. Priyadharshini"}
                     className={`w-full px-4 py-3 rounded-xl bg-cream-50 border text-sm text-forest-950 focus:outline-none focus:ring-2 ${
                       errors.name
                         ? "border-rose-400 focus:ring-rose-200"
@@ -239,7 +241,7 @@ export default function ContactSection() {
                 {/* Mobile */}
                 <div>
                   <label className="block text-xs font-bold text-forest-900 mb-1.5 uppercase tracking-wider">
-                    Mobile Number (10 Digits) <span className="text-rose-500">*</span>
+                    {t("contact.yourMobile") || "Mobile Number (10 Digits)"} <span className="text-rose-500">*</span>
                   </label>
                   <div className="relative">
                     <span className="absolute left-4 top-1/2 -translate-y-1/2 text-xs font-bold text-forest-600">
@@ -269,7 +271,7 @@ export default function ContactSection() {
                 {/* Message */}
                 <div>
                   <label className="block text-xs font-bold text-forest-900 mb-1.5 uppercase tracking-wider">
-                    Your Message / Inquiry <span className="text-rose-500">*</span>
+                    {t("contact.yourMessage") || "Your Message / Inquiry"} <span className="text-rose-500">*</span>
                   </label>
                   <textarea
                     rows={4}
@@ -278,7 +280,7 @@ export default function ContactSection() {
                       setFormData({ ...formData, message: e.target.value });
                       if (errors.message) setErrors({ ...errors, message: null });
                     }}
-                    placeholder="Tell us what you are looking for (e.g. bulk 5kg Salem turmeric, custom grind, shipping to your town)..."
+                    placeholder={t("contact.messagePlaceholder") || "Tell us what you are looking for..."}
                     className={`w-full px-4 py-3 rounded-xl bg-cream-50 border text-sm text-forest-950 focus:outline-none focus:ring-2 ${
                       errors.message
                         ? "border-rose-400 focus:ring-rose-200"
@@ -296,7 +298,7 @@ export default function ContactSection() {
                   className="w-full py-4 px-6 rounded-xl bg-forest-900 hover:bg-forest-800 text-gold-300 font-bold text-sm tracking-wide shadow-md flex items-center justify-center gap-2 transition-all"
                 >
                   <Send className="w-4 h-4 text-gold-400" />
-                  <span>Submit Inquiry</span>
+                  <span>{t("contact.submitInquiry") || "Submit Inquiry"}</span>
                 </button>
               </form>
             )}
@@ -306,3 +308,4 @@ export default function ContactSection() {
     </section>
   );
 }
+

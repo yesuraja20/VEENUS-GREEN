@@ -1,26 +1,29 @@
 "use client";
 
 import React from "react";
-import { Sparkles, Award, ShieldCheck, HeartHandshake, CheckCircle2 } from "lucide-react";
+import { Sparkles, Award, CheckCircle2 } from "lucide-react";
 import { siteConfig } from "../config/siteConfig";
+import { useLanguage } from "../context/LanguageContext";
 
 export default function AboutSection() {
+  const { t } = useLanguage();
+
   const highlights = [
     {
-      title: "Direct Farm Provenance",
-      desc: "Harvested directly from certified growers in Wayanad, Idukki, Salem, and Rajasthan with zero middlemen dilution.",
+      title: t("about.h1Title") || "Direct Farm Provenance",
+      desc: t("about.h1Desc") || "Harvested directly from certified growers in Wayanad, Idukki, Salem, and Rajasthan with zero middlemen dilution.",
     },
     {
-      title: "Cold Stone-Ground Technique",
-      desc: "Our spices are milled at low RPM stone mills below 40°C, preserving fragile terpenes, essential aroma oils, and vibrant color.",
+      title: t("about.h2Title") || "Cold Stone-Ground Technique",
+      desc: t("about.h2Desc") || "Our spices are milled at low RPM stone mills below 40°C, preserving fragile terpenes, essential aroma oils, and vibrant color.",
     },
     {
-      title: "Zero Preservatives or Fillers",
-      desc: "Strictly 100% natural spices. No artificial food coloring, lead chromate, chalk, starch, or MSG. Pure unadulterated taste.",
+      title: t("about.h3Title") || "Zero Preservatives or Fillers",
+      desc: t("about.h3Desc") || "Strictly 100% natural spices. No artificial food coloring, lead chromate, chalk, starch, or MSG. Pure unadulterated taste.",
     },
     {
-      title: "Multi-Layer Aroma Lock",
-      desc: "Packed in food-grade, nitrogen-flushed, moisture-barrier pouches that keep your spices freshly ground for months.",
+      title: t("about.h4Title") || "Multi-Layer Aroma Lock",
+      desc: t("about.h4Desc") || "Packed in food-grade, nitrogen-flushed, moisture-barrier pouches that keep your spices freshly ground for months.",
     },
   ];
 
@@ -49,10 +52,10 @@ export default function AboutSection() {
                   </div>
                   <div>
                     <h4 className="font-serif text-base font-bold text-cream-50">
-                      Heritage Spice Craftsmanship
+                      {t("about.craftTitle") || "Heritage Spice Craftsmanship"}
                     </h4>
                     <p className="text-xs text-gold-300/90">
-                      Rooted in timeless South Indian culinary traditions since inception.
+                      {t("about.craftDesc") || "Rooted in timeless South Indian culinary traditions since inception."}
                     </p>
                   </div>
                 </div>
@@ -67,19 +70,19 @@ export default function AboutSection() {
           <div>
             <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-forest-900 border border-gold-400/40 text-gold-300 text-xs font-bold uppercase tracking-widest mb-4">
               <Sparkles className="w-3.5 h-3.5 text-gold-400" />
-              <span>Our Heritage & Purpose</span>
+              <span>{t("about.sectionBadge") || "Our Heritage & Purpose"}</span>
             </div>
 
             <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-cream-50 leading-tight">
-              Tradition in Every Spice
+              {t("about.sectionTitle") || "Tradition in Every Spice"}
             </h2>
 
             <p className="mt-5 text-sm sm:text-base text-cream-200/90 leading-relaxed font-light">
-              At <strong className="text-gold-300 font-semibold">{siteConfig.name}</strong>, we believe authentic cooking begins with uncompromised ingredients. In modern grocery aisles, mass-commercialized spices are often over-processed, blended with chaff, or stripped of their therapeutic volatile oils.
+              {t("about.p1") || `At ${siteConfig.name}, we believe authentic cooking begins with uncompromised ingredients. Mass-commercialized spices are often stripped of their natural volatile essential oils. We bring back farm-fresh purity.`}
             </p>
 
             <p className="mt-3 text-sm sm:text-base text-cream-200/80 leading-relaxed font-light">
-              We travel directly to the ancient spice belts of South India—from the misty heights of Wayanad for bold Tellicherry black pepper to Salem&apos;s fertile red soils for high-curcumin turmeric. Each batch is sun-cured, hand-cleaned, and packed under rigorous hygiene standards.
+              {t("about.p2") || "We travel directly to the ancient spice belts of South India—from the misty heights of Wayanad for Tellicherry black pepper to Salem's fertile soils for high-curcumin turmeric. Each batch is sun-cured, hand-cleaned, and packed under rigorous hygiene standards."}
             </p>
 
             {/* Feature Highlights Grid */}
@@ -102,15 +105,15 @@ export default function AboutSection() {
             <div className="mt-10 pt-8 border-t border-forest-800/80 grid grid-cols-3 gap-4 text-center">
               <div>
                 <p className="font-serif text-3xl sm:text-4xl font-bold gold-gradient-text">15+</p>
-                <p className="text-xs text-cream-300 mt-1">Heritage Spices</p>
+                <p className="text-xs text-cream-300 mt-1">{t("about.stat1Label") || "Heritage Spices"}</p>
               </div>
               <div>
                 <p className="font-serif text-3xl sm:text-4xl font-bold gold-gradient-text">100%</p>
-                <p className="text-xs text-cream-300 mt-1">Pure & Natural</p>
+                <p className="text-xs text-cream-300 mt-1">{t("about.stat2Label") || "Pure & Natural"}</p>
               </div>
               <div>
                 <p className="font-serif text-3xl sm:text-4xl font-bold gold-gradient-text">10K+</p>
-                <p className="text-xs text-cream-300 mt-1">Happy Kitchens</p>
+                <p className="text-xs text-cream-300 mt-1">{t("about.stat3Label") || "Happy Kitchens"}</p>
               </div>
             </div>
           </div>
@@ -119,3 +122,4 @@ export default function AboutSection() {
     </section>
   );
 }
+

@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { useCart } from "../context/CartContext";
+import { useLanguage } from "../context/LanguageContext";
 import { siteConfig } from "../config/siteConfig";
 import { generateWhatsAppOrderUrl } from "../utils/whatsapp";
 import {
@@ -29,6 +30,7 @@ export default function CheckoutModal() {
     setIsCheckoutOpen,
     clearCart,
   } = useCart();
+  const { t, getTranslatedProduct } = useLanguage();
 
   const [formData, setFormData] = useState({
     name: "",
@@ -48,26 +50,26 @@ export default function CheckoutModal() {
     const newErrors = {};
 
     if (!formData.name.trim() || formData.name.trim().length < 2) {
-      newErrors.name = "Please enter your full name (at least 2 characters).";
+      newErrors.name = t("checkout.fullNameError");
     }
 
     const phoneRegex = /^[6-9]\d{9}$/;
     const cleanPhone = formData.phone.replace(/\D/g, "");
     if (!cleanPhone || !phoneRegex.test(cleanPhone)) {
-      newErrors.phone = "Please enter a valid 10-digit Indian mobile number.";
+      newErrors.phone = t("checkout.mobileError");
     }
 
     if (!formData.address.trim() || formData.address.trim().length < 5) {
-      newErrors.address = "Please provide your street address, door no. or landmark.";
+      newErrors.address = t("checkout.streetError");
     }
 
     if (!formData.city.trim()) {
-      newErrors.city = "Please enter your city / town.";
+      newErrors.city = t("checkout.cityError");
     }
 
     const pincodeRegex = /^\d{6}$/;
     if (!formData.pincode.trim() || !pincodeRegex.test(formData.pincode.trim())) {
-      newErrors.pincode = "Please enter a valid 6-digit postal pincode.";
+      newErrors.pincode = t("checkout.pincodeError");
     }
 
     setErrors(newErrors);
@@ -155,12 +157,12 @@ export default function CheckoutModal() {
             </div>
             <div>
               <h3 className="font-serif text-xl font-bold text-cream-50">
-                {orderConfirmed ? "Order Confirmation" : "Complete Your Spice Order"}
+                {orderConfirmed ? t("checkout.orderSummary") : t("checkout.modalTitle")}
               </h3>
               <p className="text-xs text-gold-300 font-medium">
                 {orderConfirmed
-                  ? `Reference Order #${orderConfirmed.orderId}`
-                  : "Verified Direct Farm Dispatch"}
+                  ? `#${orderConfirmed.orderId}`
+                  : t("checkout.modalSubtitle")}
               </p>
             </div>
           </div>
@@ -182,31 +184,31 @@ export default function CheckoutModal() {
 
             <div>
               <h4 className="font-serif text-2xl font-bold text-forest-950">
-                Thank You, {formData.name}!
+                {t("checkout.thankYou", { name: formData.name })}
               </h4>
               <p className="text-xs sm:text-sm text-forest-800 mt-1.5 max-w-md mx-auto leading-relaxed">
-                Your order <strong className="text-forest-950">#{orderConfirmed.orderId}</strong> has been received. Our team will pack your fresh spices in nitrogen-flushed pouches.
+                {t("checkout.orderReceived", { orderId: orderConfirmed.orderId })}
               </p>
             </div>
 
             {/* Delivery address & Summary review */}
             <div className="bg-white p-5 rounded-2xl border border-cream-200 text-left text-xs space-y-2 max-w-md mx-auto">
               <div className="flex justify-between border-b border-cream-200 pb-2">
-                <span className="text-forest-600">Order Date:</span>
+                <span className="text-forest-600">{t("checkout.orderDate")}</span>
                 <span className="font-bold text-forest-950">{orderConfirmed.date}</span>
               </div>
               <div className="flex justify-between border-b border-cream-200 pb-2">
-                <span className="text-forest-600">Mobile Contact:</span>
+                <span className="text-forest-600">{t("checkout.mobileContact")}</span>
                 <span className="font-bold text-forest-950">+91 {formData.phone}</span>
               </div>
               <div className="flex justify-between border-b border-cream-200 pb-2">
-                <span className="text-forest-600">Ship To:</span>
+                <span className="text-forest-600">{t("checkout.shipTo")}</span>
                 <span className="font-bold text-forest-950 text-right">
                   {formData.address}, {formData.city} - {formData.pincode}
                 </span>
               </div>
               <div className="flex justify-between pt-1 font-serif text-sm font-bold text-forest-950">
-                <span>Grand Total:</span>
+                <span>{t("cartDrawer.grandTotal")}:</span>
                 <span className="text-emerald-800">₹{grandTotal}</span>
               </div>
             </div>
@@ -216,7 +218,7 @@ export default function CheckoutModal() {
                 onClick={handleClose}
                 className="px-6 py-3 rounded-xl bg-forest-900 hover:bg-forest-800 text-gold-300 font-bold text-xs uppercase tracking-wider transition-all"
               >
-                Continue Shopping
+                {t("checkout.backToStore")}
               </button>
 
               <button
@@ -233,7 +235,7 @@ export default function CheckoutModal() {
                 className="px-6 py-3 rounded-xl bg-emerald-700 hover:bg-emerald-600 text-cream-50 font-bold text-xs flex items-center justify-center gap-2 shadow-sm"
               >
                 <MessageCircle className="w-4 h-4 text-emerald-300" />
-                <span>Track on WhatsApp</span>
+                <span>{t("checkout.trackWhatsApp")}</span>
               </button>
             </div>
           </div>
@@ -244,37 +246,40 @@ export default function CheckoutModal() {
             <div className="bg-white rounded-2xl p-4 border border-cream-200 shadow-sm">
               <h4 className="text-xs font-bold uppercase tracking-wider text-forest-700 mb-3 flex items-center gap-1.5">
                 <Truck className="w-4 h-4 text-gold-600" />
-                <span>Order Summary ({cartItems.length} Products)</span>
+                <span>{t("checkout.orderSummary")} ({cartItems.length})</span>
               </h4>
 
               <div className="divide-y divide-cream-100 max-h-40 overflow-y-auto pr-1">
-                {cartItems.map((item) => (
-                  <div key={item.cartKey} className="py-2 flex items-center justify-between text-xs">
-                    <div className="min-w-0 pr-2">
-                      <p className="font-bold text-forest-950 truncate">{item.name}</p>
-                      <p className="text-[11px] text-emerald-800">
-                        {item.tamilName} • {item.selectedWeight?.label} × {item.quantity}
-                      </p>
+                {cartItems.map((item) => {
+                  const translated = getTranslatedProduct(item);
+                  return (
+                    <div key={item.cartKey} className="py-2 flex items-center justify-between text-xs">
+                      <div className="min-w-0 pr-2">
+                        <p className="font-bold text-forest-950 truncate">{translated.name}</p>
+                        <p className="text-[11px] text-emerald-800">
+                          {item.tamilName} • {item.selectedWeight?.label} × {item.quantity}
+                        </p>
+                      </div>
+                      <span className="font-bold text-forest-950 flex-shrink-0">
+                        ₹{item.selectedWeight?.price * item.quantity}
+                      </span>
                     </div>
-                    <span className="font-bold text-forest-950 flex-shrink-0">
-                      ₹{item.selectedWeight?.price * item.quantity}
-                    </span>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
 
               <div className="mt-3 pt-3 border-t border-cream-200 flex items-center justify-between text-xs">
-                <span className="text-forest-700">Subtotal:</span>
+                <span className="text-forest-700">{t("cartDrawer.subtotal")}:</span>
                 <span className="font-bold text-forest-950">₹{subtotal}</span>
               </div>
               <div className="flex items-center justify-between text-xs mt-1">
-                <span className="text-forest-700">Shipping:</span>
+                <span className="text-forest-700">{t("cartDrawer.shipping")}:</span>
                 <span className="font-bold text-emerald-800">
-                  {shippingFee === 0 ? "FREE" : `₹${shippingFee}`}
+                  {shippingFee === 0 ? t("cartDrawer.free") : `₹${shippingFee}`}
                 </span>
               </div>
               <div className="mt-2 pt-2 border-t border-cream-200 flex items-center justify-between text-sm font-serif font-bold text-forest-950">
-                <span>Grand Total:</span>
+                <span>{t("cartDrawer.grandTotal")}:</span>
                 <span className="text-emerald-900 text-base">₹{grandTotal}</span>
               </div>
             </div>
@@ -282,13 +287,13 @@ export default function CheckoutModal() {
             {/* Customer Information Form */}
             <form onSubmit={handleWhatsAppCheckout} className="space-y-4">
               <h4 className="text-xs font-bold uppercase tracking-wider text-forest-700">
-                Delivery Details
+                {t("checkout.deliveryDetails")}
               </h4>
 
               {/* Name */}
               <div>
                 <label className="block text-xs font-semibold text-forest-900 mb-1">
-                  Full Name <span className="text-rose-500">*</span>
+                  {t("checkout.fullName")} <span className="text-rose-500">*</span>
                 </label>
                 <div className="relative">
                   <User className="w-4 h-4 text-forest-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
@@ -297,7 +302,7 @@ export default function CheckoutModal() {
                     name="name"
                     value={formData.name}
                     onChange={handleInputChange}
-                    placeholder="e.g. Senthil Kumar"
+                    placeholder={t("checkout.fullNamePlaceholder")}
                     className={`w-full pl-10 pr-3.5 py-2.5 rounded-xl bg-white border text-sm text-forest-950 focus:outline-none focus:ring-2 ${
                       errors.name
                         ? "border-rose-400 focus:ring-rose-200"
@@ -311,7 +316,7 @@ export default function CheckoutModal() {
               {/* Mobile Number */}
               <div>
                 <label className="block text-xs font-semibold text-forest-900 mb-1">
-                  Mobile Number (10 Digits) <span className="text-rose-500">*</span>
+                  {t("checkout.mobileNumber")} <span className="text-rose-500">*</span>
                 </label>
                 <div className="relative">
                   <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-xs font-bold text-forest-600">
@@ -337,7 +342,7 @@ export default function CheckoutModal() {
               {/* Street Address */}
               <div>
                 <label className="block text-xs font-semibold text-forest-900 mb-1">
-                  Door No, Street & Landmark <span className="text-rose-500">*</span>
+                  {t("checkout.streetAddress")} <span className="text-rose-500">*</span>
                 </label>
                 <div className="relative">
                   <MapPin className="w-4 h-4 text-forest-500 absolute left-3.5 top-3" />
@@ -346,7 +351,7 @@ export default function CheckoutModal() {
                     name="address"
                     value={formData.address}
                     onChange={handleInputChange}
-                    placeholder="e.g. 45/A, Green Garden Street, Near Temple"
+                    placeholder={t("checkout.streetPlaceholder")}
                     className={`w-full pl-10 pr-3.5 py-2.5 rounded-xl bg-white border text-sm text-forest-950 focus:outline-none focus:ring-2 ${
                       errors.address
                         ? "border-rose-400 focus:ring-rose-200"
@@ -361,7 +366,7 @@ export default function CheckoutModal() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-semibold text-forest-900 mb-1">
-                    City / Town <span className="text-rose-500">*</span>
+                    {t("checkout.city")} <span className="text-rose-500">*</span>
                   </label>
                   <div className="relative">
                     <Building className="w-4 h-4 text-forest-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
@@ -370,7 +375,7 @@ export default function CheckoutModal() {
                       name="city"
                       value={formData.city}
                       onChange={handleInputChange}
-                      placeholder="e.g. Tirupur / Chennai"
+                      placeholder={t("checkout.cityPlaceholder")}
                       className={`w-full pl-10 pr-3.5 py-2.5 rounded-xl bg-white border text-sm text-forest-950 focus:outline-none focus:ring-2 ${
                         errors.city
                           ? "border-rose-400 focus:ring-rose-200"
@@ -383,7 +388,7 @@ export default function CheckoutModal() {
 
                 <div>
                   <label className="block text-xs font-semibold text-forest-900 mb-1">
-                    Postal Pincode <span className="text-rose-500">*</span>
+                    {t("checkout.pincode")} <span className="text-rose-500">*</span>
                   </label>
                   <div className="relative">
                     <Navigation className="w-4 h-4 text-forest-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
@@ -408,14 +413,14 @@ export default function CheckoutModal() {
               {/* Special Instructions */}
               <div>
                 <label className="block text-xs font-semibold text-forest-900 mb-1">
-                  Order Notes / Packaging Request (Optional)
+                  {t("checkout.notes")}
                 </label>
                 <input
                   type="text"
                   name="notes"
                   value={formData.notes}
                   onChange={handleInputChange}
-                  placeholder="e.g. Please send extra fine grind for Salem Turmeric"
+                  placeholder={t("checkout.notesPlaceholder")}
                   className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-cream-300 text-sm text-forest-950 focus:outline-none focus:ring-2 focus:ring-gold-400/40"
                 />
               </div>
@@ -428,7 +433,7 @@ export default function CheckoutModal() {
                   className="w-full py-4 px-4 rounded-xl bg-emerald-700 hover:bg-emerald-600 text-cream-50 font-bold text-sm tracking-wide shadow-md flex items-center justify-center gap-2.5 transition-all hover:scale-[1.01]"
                 >
                   <MessageCircle className="w-5 h-5 text-emerald-300" />
-                  <span>Send Order & Checkout via WhatsApp</span>
+                  <span>{t("checkout.sendWhatsApp")}</span>
                 </button>
 
                 <button
@@ -436,14 +441,14 @@ export default function CheckoutModal() {
                   onClick={handleCodCheckout}
                   className="w-full py-3.5 px-4 rounded-xl bg-forest-900 hover:bg-forest-800 text-gold-300 font-bold text-sm tracking-wide border border-gold-500/40 flex items-center justify-center gap-2 transition-all"
                 >
-                  <span>Confirm Cash on Delivery Order (₹{grandTotal})</span>
+                  <span>{t("checkout.confirmCod")} (₹{grandTotal})</span>
                   <ArrowRight className="w-4 h-4" />
                 </button>
               </div>
 
               <div className="pt-2 flex items-center justify-center gap-2 text-xs text-forest-700 font-medium">
                 <ShieldCheck className="w-4 h-4 text-forest-600" />
-                <span>Zero spam guarantee. Fast courier dispatch with tracking ID.</span>
+                <span>{t("checkout.guarantee")}</span>
               </div>
             </form>
           </div>

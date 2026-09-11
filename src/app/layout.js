@@ -1,5 +1,6 @@
 import "./globals.css";
 import { CartProvider } from "../context/CartContext";
+import { LanguageProvider } from "../context/LanguageContext";
 import Toast from "../components/Toast";
 import CartDrawer from "../components/CartDrawer";
 import CheckoutModal from "../components/CheckoutModal";
@@ -50,15 +51,17 @@ export default function RootLayout({ children }) {
         />
       </head>
       <body className="min-h-screen bg-cream-50 text-forest-950 antialiased selection:bg-gold-500 selection:text-forest-950">
-        <CartProvider>
-          {children}
-          {/* Global Drawers & Modals */}
-          <CartDrawer />
-          <CheckoutModal />
-          <QuickViewModal />
-          <WhatsAppFloating />
-          <Toast />
-        </CartProvider>
+        <LanguageProvider>
+          <CartProvider>
+            {children}
+            {/* Global Drawers & Modals */}
+            <CartDrawer />
+            <CheckoutModal />
+            <QuickViewModal />
+            <WhatsAppFloating />
+            <Toast />
+          </CartProvider>
+        </LanguageProvider>
       </body>
     </html>
   );

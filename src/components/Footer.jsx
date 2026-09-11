@@ -4,6 +4,7 @@ import React from "react";
 import Link from "next/link";
 import { siteConfig } from "../config/siteConfig";
 import { generateWhatsAppInquiryUrl } from "../utils/whatsapp";
+import { useLanguage } from "../context/LanguageContext";
 import {
   Leaf,
   Phone,
@@ -18,6 +19,8 @@ import {
 } from "lucide-react";
 
 export default function Footer({ onCategoryClick }) {
+  const { t } = useLanguage();
+
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
@@ -33,10 +36,10 @@ export default function Footer({ onCategoryClick }) {
             </div>
             <div>
               <h3 className="font-serif text-lg font-bold text-cream-50">
-                Pure Natural Spices Guaranteed
+                {t("footer.guaranteeTitle") || "Pure Natural Spices Guaranteed"}
               </h3>
               <p className="text-xs text-cream-300">
-                100% unadulterated, estate-sourced, laboratory tested for purity.
+                {t("footer.guaranteeDesc") || "100% unadulterated, estate-sourced, laboratory tested for purity."}
               </p>
             </div>
           </div>
@@ -48,7 +51,7 @@ export default function Footer({ onCategoryClick }) {
             className="px-6 py-3 rounded-full bg-emerald-700 hover:bg-emerald-600 text-cream-50 font-bold text-xs uppercase tracking-wider flex items-center gap-2 shadow-lg transition-all"
           >
             <MessageCircle className="w-4 h-4 text-emerald-300" />
-            <span>Order Directly via WhatsApp</span>
+            <span>{t("footer.orderWhatsapp") || "Order Directly via WhatsApp"}</span>
           </a>
         </div>
       </div>
@@ -68,7 +71,7 @@ export default function Footer({ onCategoryClick }) {
             </div>
 
             <p className="text-xs sm:text-sm text-cream-300/80 leading-relaxed font-light max-w-sm">
-              Bringing centuries-old South Indian spice heritage straight from organic estate hills to your kitchen. Sun-dried, stone-ground, and aroma-sealed with zero artificial fillers.
+              {t("footer.brandDesc") || "Bringing centuries-old South Indian spice heritage straight from organic estate hills to your kitchen. Sun-dried, stone-ground, and aroma-sealed with zero artificial fillers."}
             </p>
 
             {/* Social Icons */}
@@ -115,42 +118,42 @@ export default function Footer({ onCategoryClick }) {
           {/* Quick Links */}
           <div className="space-y-3">
             <h4 className="text-xs font-bold uppercase tracking-widest text-gold-400">
-              Quick Navigation
+              {t("footer.quickNav") || "Quick Navigation"}
             </h4>
             <ul className="space-y-2 text-xs sm:text-sm text-cream-200/80">
               <li>
                 <a href="#hero" className="hover:text-gold-300 transition-colors">
-                  Home
+                  {t("nav.home") || "Home"}
                 </a>
               </li>
               <li>
                 <a href="#about" className="hover:text-gold-300 transition-colors">
-                  About Our Heritage
+                  {t("nav.about") || "About"}
                 </a>
               </li>
               <li>
                 <a href="#categories" className="hover:text-gold-300 transition-colors">
-                  Product Categories
+                  {t("nav.categories") || "Categories"}
                 </a>
               </li>
               <li>
                 <a href="#products" className="hover:text-gold-300 transition-colors">
-                  All Spices Catalogue
+                  {t("nav.products") || "Products"}
                 </a>
               </li>
               <li>
                 <a href="#why-choose-us" className="hover:text-gold-300 transition-colors">
-                  Why Choose Us
+                  {t("nav.whyChooseUs") || "Why Choose Us"}
                 </a>
               </li>
               <li>
                 <a href="#testimonials" className="hover:text-gold-300 transition-colors">
-                  Customer Reviews
+                  {t("nav.testimonials") || "Testimonials"}
                 </a>
               </li>
               <li>
                 <a href="#contact" className="hover:text-gold-300 transition-colors">
-                  Contact Us
+                  {t("nav.contact") || "Contact"}
                 </a>
               </li>
             </ul>
@@ -159,7 +162,7 @@ export default function Footer({ onCategoryClick }) {
           {/* Categories */}
           <div className="space-y-3">
             <h4 className="text-xs font-bold uppercase tracking-widest text-gold-400">
-              Categories
+              {t("footer.categories") || "Categories"}
             </h4>
             <ul className="space-y-2 text-xs sm:text-sm text-cream-200/80">
               <li>
@@ -167,7 +170,7 @@ export default function Footer({ onCategoryClick }) {
                   onClick={() => onCategoryClick && onCategoryClick("whole-spices")}
                   className="hover:text-gold-300 transition-colors text-left"
                 >
-                  Whole Spices (முழு மசாலா)
+                  {t("catalog.wholeSpices") || "Whole Spices"}
                 </button>
               </li>
               <li>
@@ -175,7 +178,7 @@ export default function Footer({ onCategoryClick }) {
                   onClick={() => onCategoryClick && onCategoryClick("powdered-spices")}
                   className="hover:text-gold-300 transition-colors text-left"
                 >
-                  Powdered Spices (மசாலா தூள்)
+                  {t("catalog.powderedSpices") || "Powdered Spices"}
                 </button>
               </li>
               <li>
@@ -183,7 +186,7 @@ export default function Footer({ onCategoryClick }) {
                   onClick={() => onCategoryClick && onCategoryClick("cooking-essentials")}
                   className="hover:text-gold-300 transition-colors text-left"
                 >
-                  Cooking Essentials (சமையல் பொருட்கள்)
+                  {t("catalog.cookingEssentials") || "Cooking Essentials"}
                 </button>
               </li>
               <li className="pt-2 text-[11px] text-gold-400/80">
@@ -195,7 +198,7 @@ export default function Footer({ onCategoryClick }) {
           {/* Contact Details */}
           <div className="space-y-3">
             <h4 className="text-xs font-bold uppercase tracking-widest text-gold-400">
-              Reach Our Team
+              {t("footer.reachTeam") || "Reach Our Team"}
             </h4>
             <div className="space-y-2 text-xs text-cream-200/80">
               <div className="flex items-start gap-2.5">
@@ -226,16 +229,16 @@ export default function Footer({ onCategoryClick }) {
 
         {/* Bottom bar */}
         <div className="mt-12 pt-8 border-t border-forest-900 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-cream-400">
-          <p>© 2026 {siteConfig.legalName}. All Rights Reserved.</p>
+          <p>© 2026 {siteConfig.legalName}. {t("footer.rights") || "All Rights Reserved."}</p>
           <div className="flex items-center gap-6">
-            <span>Pure Spices • Authentic Taste</span>
+            <span>{t("footer.tagline") || "Pure Spices • Authentic Taste"}</span>
             <button
               onClick={scrollToTop}
               className="p-2 rounded-xl bg-forest-900 hover:bg-forest-800 text-gold-400 flex items-center gap-1 transition-colors"
-              aria-label="Scroll to top"
+              aria-label={t("footer.top") || "Scroll to top"}
             >
               <ArrowUp className="w-4 h-4" />
-              <span className="text-[11px] font-semibold">Top</span>
+              <span className="text-[11px] font-semibold">{t("footer.top") || "Top"}</span>
             </button>
           </div>
         </div>
@@ -243,3 +246,4 @@ export default function Footer({ onCategoryClick }) {
     </footer>
   );
 }
+

@@ -2,10 +2,14 @@
 
 import React, { useState } from "react";
 import { useCart } from "../context/CartContext";
+import { useLanguage } from "../context/LanguageContext";
 import { Plus, Minus, ShoppingBag, Check, Star, Eye } from "lucide-react";
 
 export default function ProductCard({ product }) {
   const { addToCart, setQuickViewProduct } = useCart();
+  const { currentLanguage, t, getTranslatedProduct } = useLanguage();
+  const translated = getTranslatedProduct(product);
+
   const [selectedWeight, setSelectedWeight] = useState(product.weights[0]);
   const [quantity, setQuantity] = useState(1);
   const [isAddedRecently, setIsAddedRecently] = useState(false);
@@ -14,7 +18,7 @@ export default function ProductCard({ product }) {
   const handleDecrement = () => setQuantity((prev) => (prev > 1 ? prev - 1 : 1));
 
   const handleAddToCart = () => {
-    addToCart(product, selectedWeight, quantity);
+    addToCart(translated, selectedWeight, quantity);
     setIsAddedRecently(true);
     setTimeout(() => {
       setIsAddedRecently(false);
@@ -27,7 +31,7 @@ export default function ProductCard({ product }) {
       <div className="relative h-56 sm:h-64 overflow-hidden bg-cream-200">
         <img
           src={product.image}
-          alt={`${product.name} - ${product.tamilName}`}
+          alt={`${translated.name} - ${product.tamilName}`}
           className="w-full h-full object-cover object-center transform transition-transform duration-700 group-hover:scale-105"
         />
 
@@ -43,9 +47,9 @@ export default function ProductCard({ product }) {
         {/* Quick View Button on hover */}
         <button
           onClick={() => setQuickViewProduct(product)}
-          aria-label={`Quick view ${product.name}`}
+          aria-label={`${t("productCard.quickView")} ${translated.name}`}
           className="absolute top-3 right-3 z-10 p-2 rounded-full bg-cream-50/90 text-forest-900 opacity-0 group-hover:opacity-100 transform translate-y-1 group-hover:translate-y-0 transition-all duration-200 shadow-md hover:bg-gold-500 hover:text-forest-950"
-          title="Quick View Details"
+          title={t("productCard.quickView")}
         >
           <Eye className="w-4 h-4" />
         </button>
@@ -61,33 +65,30 @@ export default function ProductCard({ product }) {
       {/* Card Body */}
       <div className="p-5 flex-1 flex flex-col justify-between">
         <div>
-          {/* Tamil & Category Tag */}
+          {/* Subtitle & Category Tag */}
           <div className="flex items-center justify-between gap-2 mb-1">
             <span className="text-xs font-bold text-emerald-800 tracking-wider">
-              {product.tamilName}
+              {currentLanguage === "en" ? product.tamilName : product.englishName}
             </span>
             <span className="text-[10px] uppercase font-semibold text-forest-600/70">
               {product.origin.split(",")[0]}
             </span>
           </div>
 
-          {/* Product English Name */}
+          {/* Product Name */}
           <h3 className="font-serif text-lg sm:text-xl font-bold text-forest-950 leading-snug group-hover:text-forest-700 transition-colors">
-            {product.name}{" "}
-            <span className="text-xs font-sans font-medium text-forest-600">
-              ({product.englishName})
-            </span>
+            {translated.name}
           </h3>
 
           {/* Description */}
           <p className="mt-2 text-xs text-forest-800/80 line-clamp-2 leading-relaxed font-normal">
-            {product.shortDescription}
+            {translated.shortDescription}
           </p>
 
           {/* Weight Selection Options */}
           <div className="mt-4">
             <label className="text-[11px] font-bold uppercase tracking-wider text-forest-700 block mb-1.5">
-              Select Pack Size:
+              {t("productCard.selectWeight")}
             </label>
             <div className="flex flex-wrap gap-1.5">
               {product.weights.map((w) => {
@@ -115,7 +116,6 @@ export default function ProductCard({ product }) {
         <div className="mt-6 pt-4 border-t border-cream-200/80">
           <div className="flex items-baseline justify-between mb-3">
             <div>
-              <span className="text-xs text-forest-600 font-medium">Price:</span>
               <div className="flex items-baseline gap-1">
                 <span className="font-serif text-2xl font-bold text-forest-950">
                   ₹{selectedWeight.price}
@@ -160,12 +160,12 @@ export default function ProductCard({ product }) {
             {isAddedRecently ? (
               <>
                 <Check className="w-4 h-4 text-gold-300" />
-                <span>Added to Cart!</span>
+                <span>{t("productCard.addedToCart")}</span>
               </>
             ) : (
               <>
                 <ShoppingBag className="w-4 h-4 text-gold-400" />
-                <span>Add to Cart • ₹{selectedWeight.price * quantity}</span>
+                <span>{t("productCard.addToCart")} • ₹{selectedWeight.price * quantity}</span>
               </>
             )}
           </button>

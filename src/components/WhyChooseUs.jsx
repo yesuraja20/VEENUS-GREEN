@@ -10,38 +10,41 @@ import {
   MessageCircle,
   Sparkles,
 } from "lucide-react";
+import { useLanguage } from "../context/LanguageContext";
 
 export default function WhyChooseUs() {
+  const { t } = useLanguage();
+
   const features = [
     {
       icon: Award,
-      title: "Premium Quality",
-      desc: "Grade-A export standard whole seeds and single-origin powders, devoid of chaff or broken debris.",
+      title: t("whyChooseUs.p1Title") || "Estate Direct Sourcing",
+      desc: t("whyChooseUs.p1Desc") || "Grade-A export standard whole seeds and single-origin powders, devoid of chaff or broken debris.",
     },
     {
       icon: Leaf,
-      title: "Fresh & Authentic",
-      desc: "Packed directly after harvest and slow sun-drying to safeguard rich natural aromas and volatile essential oils.",
+      title: t("whyChooseUs.p2Title") || "Cold Stone-Ground",
+      desc: t("whyChooseUs.p2Desc") || "Traditional slow-milling below 40°C to lock in delicate essential oils, volatile aroma, and nutrition.",
     },
     {
       icon: ShieldCheck,
-      title: "Hygienically Packed",
-      desc: "Prepared in certified cleanroom facilities with multi-barrier nitrogen-flushed food-grade pouches.",
+      title: t("whyChooseUs.p3Title") || "100% Zero Fillers",
+      desc: t("whyChooseUs.p3Desc") || "No synthetic colors, spent spice wastes, artificial flavors, or chemical preservatives. Pure nature.",
     },
     {
       icon: CheckCircle,
-      title: "Carefully Selected",
-      desc: "Rigorous dual-stage manual inspection ensures zero adulterants, zero artificial food coloring, and zero dust.",
+      title: t("whyChooseUs.p4Title") || "Aroma-Lock Pouches",
+      desc: t("whyChooseUs.p4Desc") || "Multi-layer nitrogen-flushed zip barrier packaging that preserves freshly ground freshness for months.",
     },
     {
       icon: Truck,
-      title: "Trusted Service",
-      desc: "Express pan-India delivery with live tracking numbers and dedicated customer support at your fingertips.",
+      title: t("whyChooseUs.p5Title") || "Direct Express Dispatch",
+      desc: t("whyChooseUs.p5Desc") || "Fresh batches dispatched within 24 hours of ordering with door-to-door courier tracking across India.",
     },
     {
       icon: MessageCircle,
-      title: "Easy Ordering",
-      desc: "Seamless 1-tap checkout via WhatsApp or direct online ordering with instant confirmation and transparent updates.",
+      title: t("whyChooseUs.p6Title") || "Ancient Wellness Purity",
+      desc: t("whyChooseUs.p6Desc") || "Curated according to Ayurvedic and traditional South Indian culinary science for optimal therapeutic benefits.",
     },
   ];
 
@@ -52,13 +55,13 @@ export default function WhyChooseUs() {
         <div className="text-center max-w-3xl mx-auto mb-16">
           <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-forest-900 text-gold-300 text-xs font-bold uppercase tracking-widest mb-3">
             <Sparkles className="w-3.5 h-3.5 text-gold-400" />
-            <span>The Venus Green Standard</span>
+            <span>{t("whyChooseUs.sectionBadge") || "Why Venus Green"}</span>
           </div>
           <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-bold text-forest-950 tracking-tight">
-            Why Discerning Chefs Choose Us
+            {t("whyChooseUs.sectionTitle") || "The Gold Standard in Pure Spices"}
           </h2>
           <p className="mt-4 text-forest-800/80 text-sm sm:text-base leading-relaxed">
-            We don&apos;t just sell spices; we preserve the sacred taste and aromatic heritage of Indian home kitchens.
+            {t("whyChooseUs.sectionDesc") || "We bridge the gap between traditional spice farm hills and modern home kitchens with uncompromising purity standards."}
           </p>
         </div>
 
@@ -87,7 +90,7 @@ export default function WhyChooseUs() {
 
                 <div className="mt-6 pt-4 border-t border-cream-100 flex items-center gap-2 text-xs font-bold text-emerald-800">
                   <span className="w-2 h-2 rounded-full bg-emerald-600" />
-                  <span>100% Quality Guaranteed</span>
+                  <span>{t("about.stat2Label") || "100% Pure & Natural"}</span>
                 </div>
               </div>
             );
@@ -97,3 +100,4 @@ export default function WhyChooseUs() {
     </section>
   );
 }
+

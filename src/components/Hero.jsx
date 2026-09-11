@@ -3,8 +3,11 @@
 import React from "react";
 import { ArrowRight, Sparkles, Award, ShieldCheck, Truck, Flame } from "lucide-react";
 import { siteConfig } from "../config/siteConfig";
+import { useLanguage } from "../context/LanguageContext";
 
 export default function Hero() {
+  const { t } = useLanguage();
+
   return (
     <section
       id="hero"
@@ -28,8 +31,8 @@ export default function Hero() {
         <div className="glass-forest px-4 py-2.5 rounded-2xl flex items-center gap-3 border border-gold-400/30 shadow-gold-glow/20">
           <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping" />
           <div className="text-left">
-            <p className="text-[11px] uppercase tracking-wider text-gold-300 font-semibold">Tellicherry Grade</p>
-            <p className="text-xs font-bold text-cream-100">Pure Black Pepper • மிளகு</p>
+            <p className="text-[11px] uppercase tracking-wider text-gold-300 font-semibold">{t("hero.badge1Title")}</p>
+            <p className="text-xs font-bold text-cream-100">{t("hero.badge1Desc")}</p>
           </div>
         </div>
       </div>
@@ -38,8 +41,8 @@ export default function Hero() {
         <div className="glass-forest px-4 py-2.5 rounded-2xl flex items-center gap-3 border border-gold-400/30 shadow-gold-glow/20">
           <Flame className="w-4 h-4 text-amber-400" />
           <div className="text-left">
-            <p className="text-[11px] uppercase tracking-wider text-gold-300 font-semibold">Salem Origin</p>
-            <p className="text-xs font-bold text-cream-100">4.5%+ Curcumin Turmeric</p>
+            <p className="text-[11px] uppercase tracking-wider text-gold-300 font-semibold">{t("hero.badge2Title")}</p>
+            <p className="text-xs font-bold text-cream-100">{t("hero.badge2Desc")}</p>
           </div>
         </div>
       </div>
@@ -49,18 +52,18 @@ export default function Hero() {
         {/* Heritage Pill */}
         <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-forest-800/80 border border-gold-400/40 text-gold-300 text-xs sm:text-sm font-semibold tracking-widest uppercase mb-6 backdrop-blur-md shadow-inner-gold">
           <Sparkles className="w-4 h-4 text-gold-400" />
-          <span>Heritage Sourced • 100% Unadulterated Spices</span>
+          <span>{t("hero.heritagePill")}</span>
         </div>
 
         {/* Main Heading */}
         <h1 className="font-serif text-4xl sm:text-6xl md:text-7xl font-bold tracking-tight text-cream-50 leading-[1.15] max-w-4xl">
-          Pure Spices. <br />
-          <span className="gold-gradient-text italic font-normal">Authentic Taste.</span>
+          {t("hero.headingPart1")} <br />
+          <span className="gold-gradient-text italic font-normal">{t("hero.headingPart2")}</span>
         </h1>
 
         {/* Subheading */}
         <p className="mt-6 text-base sm:text-xl text-cream-200/90 max-w-2xl font-light leading-relaxed">
-          {siteConfig.subheading}
+          {t("hero.subheading")}
         </p>
 
         {/* Action Buttons */}
@@ -69,7 +72,7 @@ export default function Hero() {
             href="#products"
             className="w-full sm:w-auto px-8 py-4 rounded-xl gold-gradient-bg text-forest-950 font-bold text-sm sm:text-base tracking-wide shadow-gold-glow hover:brightness-110 active:scale-95 transition-all duration-300 flex items-center justify-center gap-2 group"
           >
-            <span>Explore Products</span>
+            <span>{t("hero.exploreButton")}</span>
             <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
           </a>
 
@@ -77,7 +80,7 @@ export default function Hero() {
             href="#categories"
             className="w-full sm:w-auto px-8 py-4 rounded-xl bg-forest-900/80 hover:bg-forest-800 text-cream-100 font-semibold text-sm sm:text-base tracking-wide border border-gold-400/30 hover:border-gold-400 backdrop-blur-md active:scale-95 transition-all duration-300 flex items-center justify-center"
           >
-            <span>Shop by Category</span>
+            <span>{t("categories.sectionTitle")}</span>
           </a>
         </div>
 
@@ -88,8 +91,8 @@ export default function Hero() {
               <ShieldCheck className="w-5 h-5 text-gold-400" />
             </div>
             <div>
-              <h2 className="text-xs sm:text-sm font-bold text-cream-100">100% Pure</h2>
-              <p className="text-[11px] text-cream-400">Zero artificial colors or starch</p>
+              <h2 className="text-xs sm:text-sm font-bold text-cream-100">{t("hero.stat2Label")}</h2>
+              <p className="text-[11px] text-cream-400">100% {t("whyChooseUs.p3Title")}</p>
             </div>
           </div>
 
@@ -98,8 +101,8 @@ export default function Hero() {
               <Award className="w-5 h-5 text-gold-400" />
             </div>
             <div>
-              <h2 className="text-xs sm:text-sm font-bold text-cream-100">Heritage Origin</h2>
-              <p className="text-[11px] text-cream-400">Directly from estate harvests</p>
+              <h2 className="text-xs sm:text-sm font-bold text-cream-100">{t("about.craftTitle")}</h2>
+              <p className="text-[11px] text-cream-400">{t("whyChooseUs.p1Title")}</p>
             </div>
           </div>
 
@@ -108,8 +111,8 @@ export default function Hero() {
               <Sparkles className="w-5 h-5 text-gold-400" />
             </div>
             <div>
-              <h2 className="text-xs sm:text-sm font-bold text-cream-100">Sun-Dried Fresh</h2>
-              <p className="text-[11px] text-cream-400">Essential oils retained</p>
+              <h2 className="text-xs sm:text-sm font-bold text-cream-100">{t("about.stat1Label")}</h2>
+              <p className="text-[11px] text-cream-400">{t("about.stat1Num")} {t("categories.spicesCount")}</p>
             </div>
           </div>
 
@@ -118,8 +121,8 @@ export default function Hero() {
               <Truck className="w-5 h-5 text-gold-400" />
             </div>
             <div>
-              <h2 className="text-xs sm:text-sm font-bold text-cream-100">All India Delivery</h2>
-              <p className="text-[11px] text-cream-400">Hygienic aroma-lock pouches</p>
+              <h2 className="text-xs sm:text-sm font-bold text-cream-100">{t("whyChooseUs.p5Title")}</h2>
+              <p className="text-[11px] text-cream-400">{t("whyChooseUs.p4Title")}</p>
             </div>
           </div>
         </div>

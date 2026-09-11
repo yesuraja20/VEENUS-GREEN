@@ -3,9 +3,11 @@
 import React, { useState, useMemo } from "react";
 import { products } from "../data/products";
 import ProductCard from "./ProductCard";
+import { useLanguage } from "../context/LanguageContext";
 import { Search, SlidersHorizontal, Sparkles, X, ArrowUpDown } from "lucide-react";
 
 export default function ProductCatalog({ activeCategory, onCategoryChange }) {
+  const { t, getTranslatedProduct, currentLanguage } = useLanguage();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState(activeCategory || "all");
   const [sortBy, setSortBy] = useState("popular");
@@ -41,19 +43,21 @@ export default function ProductCatalog({ activeCategory, onCategoryChange }) {
         const matchesCategory =
           selectedCategory === "all" || product.category === selectedCategory;
 
-        // Search Filter (English name, Tamil name, transliteration, keywords, description)
+        // Search Filter (English name, Localized name, Tamil name, transliteration, keywords, description)
         if (!searchQuery.trim()) return matchesCategory;
 
         const query = searchQuery.toLowerCase().trim();
+        const translated = getTranslatedProduct(product);
+        const matchesLocalized = translated.name.toLowerCase().includes(query);
         const matchesName = product.name.toLowerCase().includes(query);
-        const matchesEnglish = product.englishName.toLowerCase().includes(query);
-        const matchesTamil = product.tamilName.includes(query);
-        const matchesKeywords = product.searchKeywords.some((kw) =>
+        const matchesEnglish = product.englishName ? product.englishName.toLowerCase().includes(query) : false;
+        const matchesTamil = product.tamilName ? product.tamilName.includes(query) : false;
+        const matchesKeywords = product.searchKeywords ? product.searchKeywords.some((kw) =>
           kw.toLowerCase().includes(query)
-        );
-        const matchesDesc = product.shortDescription.toLowerCase().includes(query);
+        ) : false;
+        const matchesDesc = (product.shortDescription || "").toLowerCase().includes(query) || (translated.shortDescription || "").toLowerCase().includes(query);
 
-        return matchesCategory && (matchesName || matchesEnglish || matchesTamil || matchesKeywords || matchesDesc);
+        return matchesCategory && (matchesLocalized || matchesName || matchesEnglish || matchesTamil || matchesKeywords || matchesDesc);
       })
       .sort((a, b) => {
         const minPriceA = a.weights[0].price;
@@ -65,18 +69,21 @@ export default function ProductCatalog({ activeCategory, onCategoryChange }) {
         if (sortBy === "price-high") {
           return minPriceB - minPriceA;
         }
+        if (sortBy === "rating") {
+          return b.rating - a.rating;
+        }
         // "popular"
         if (a.isPopular && !b.isPopular) return -1;
         if (!a.isPopular && b.isPopular) return 1;
         return b.rating - a.rating;
       });
-  }, [searchQuery, selectedCategory, sortBy]);
+  }, [searchQuery, selectedCategory, sortBy, currentLanguage]);
 
   const categoriesList = [
-    { id: "all", label: "All Spices", tamil: "அனைத்தும்" },
-    { id: "whole-spices", label: "Whole Spices", tamil: "முழு மசாலா" },
-    { id: "powdered-spices", label: "Powdered Spices", tamil: "மசாலா தூள்" },
-    { id: "cooking-essentials", label: "Cooking Essentials", tamil: "சமையல் பொருட்கள்" },
+    { id: "all", label: t("catalog.allSpices") },
+    { id: "whole-spices", label: t("catalog.wholeSpices") },
+    { id: "powdered-spices", label: t("catalog.powderedSpices") },
+    { id: "cooking-essentials", label: t("catalog.cookingEssentials") },
   ];
 
   return (
@@ -86,13 +93,13 @@ export default function ProductCatalog({ activeCategory, onCategoryChange }) {
         <div className="text-center max-w-3xl mx-auto mb-12">
           <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-forest-100 text-forest-800 text-xs font-bold uppercase tracking-widest mb-3">
             <Sparkles className="w-3.5 h-3.5 text-forest-600" />
-            <span>Master Spice Collection</span>
+            <span>{t("catalog.sectionBadge")}</span>
           </div>
           <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-bold text-forest-950 tracking-tight">
-            Authentic Indian Spices & Essentials
+            {t("catalog.sectionTitle")}
           </h2>
           <p className="mt-3 text-forest-800/80 text-sm sm:text-base leading-relaxed">
-            Search by English or Tamil name (e.g. <em>Milagu</em>, <em>Seeragam</em>, <em>மிளகு</em>). Hand-cleaned, sun-dried, and aroma-sealed.
+            {t("catalog.sectionDesc")}
           </p>
         </div>
 
@@ -107,7 +114,7 @@ export default function ProductCatalog({ activeCategory, onCategoryChange }) {
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search spices in English or Tamil (e.g., Milagu, Seeragam, மஞ்சள்)..."
+                placeholder={t("catalog.searchPlaceholder")}
                 className="w-full pl-12 pr-10 py-3.5 rounded-xl bg-white border border-cream-300 text-forest-950 placeholder-forest-600/60 text-sm focus:outline-none focus:ring-2 focus:ring-gold-500/50 focus:border-gold-500 shadow-inner"
               />
               {searchQuery && (
@@ -129,9 +136,10 @@ export default function ProductCatalog({ activeCategory, onCategoryChange }) {
                   onChange={(e) => setSortBy(e.target.value)}
                   className="w-full pl-10 pr-8 py-3.5 rounded-xl bg-white border border-cream-300 text-forest-900 text-xs sm:text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-gold-500/50 appearance-none cursor-pointer shadow-sm"
                 >
-                  <option value="popular">Popular Products</option>
-                  <option value="price-low">Price: Low to High</option>
-                  <option value="price-high">Price: High to Low</option>
+                  <option value="popular">{t("catalog.sortPopular")}</option>
+                  <option value="price-low">{t("catalog.sortPriceLow")}</option>
+                  <option value="price-high">{t("catalog.sortPriceHigh")}</option>
+                  <option value="rating">{t("catalog.sortRating")}</option>
                 </select>
               </div>
             </div>
@@ -155,9 +163,6 @@ export default function ProductCatalog({ activeCategory, onCategoryChange }) {
                   }`}
                 >
                   <span>{cat.label}</span>
-                  <span className={`text-[10px] opacity-75 ${isSelected ? "text-gold-200" : "text-forest-600"}`}>
-                    ({cat.tamil})
-                  </span>
                 </button>
               );
             })}
@@ -167,7 +172,9 @@ export default function ProductCatalog({ activeCategory, onCategoryChange }) {
         {/* Results Info Counter */}
         <div className="flex items-center justify-between mb-6 px-1">
           <p className="text-xs sm:text-sm text-forest-800 font-medium">
-            Showing <strong className="text-forest-950 font-bold">{filteredProducts.length}</strong> of {products.length} spices
+            {t("catalog.showing")}{" "}
+            <strong className="text-forest-950 font-bold">{filteredProducts.length}</strong>{" "}
+            {t("catalog.of")} {products.length} {t("catalog.spices")}
             {searchQuery && (
               <span>
                 {" "}for &ldquo;<span className="text-forest-950 font-bold">{searchQuery}</span>&rdquo;
@@ -179,7 +186,7 @@ export default function ProductCatalog({ activeCategory, onCategoryChange }) {
               onClick={clearFilters}
               className="text-xs font-semibold text-emerald-800 hover:text-emerald-950 underline flex items-center gap-1"
             >
-              Reset all filters
+              {t("catalog.clearFilters")}
             </button>
           )}
         </div>
@@ -197,15 +204,15 @@ export default function ProductCatalog({ activeCategory, onCategoryChange }) {
             <div className="w-16 h-16 rounded-full bg-cream-200 text-forest-700 flex items-center justify-center mx-auto mb-4">
               <Search className="w-8 h-8" />
             </div>
-            <h3 className="font-serif text-xl font-bold text-forest-950">No spices found</h3>
+            <h3 className="font-serif text-xl font-bold text-forest-950">{t("catalog.noResultsTitle")}</h3>
             <p className="mt-2 text-xs sm:text-sm text-forest-700 leading-relaxed">
-              We couldn&apos;t find any spices matching &ldquo;{searchQuery}&rdquo;. Try searching by Tamil name, e.g. <em>Milagu</em> or <em>மிளகு</em>.
+              {t("catalog.noResultsDesc")}
             </p>
             <button
               onClick={clearFilters}
               className="mt-5 px-6 py-2.5 rounded-xl bg-forest-900 text-gold-300 font-bold text-xs hover:bg-forest-800 shadow-sm"
             >
-              Clear Search & View All
+              {t("catalog.clearFilters")}
             </button>
           </div>
         )}

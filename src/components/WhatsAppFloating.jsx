@@ -3,9 +3,11 @@
 import React, { useState } from "react";
 import { siteConfig } from "../config/siteConfig";
 import { generateWhatsAppInquiryUrl } from "../utils/whatsapp";
+import { useLanguage } from "../context/LanguageContext";
 import { MessageCircle, X } from "lucide-react";
 
 export default function WhatsAppFloating() {
+  const { t } = useLanguage();
   const [showTooltip, setShowTooltip] = useState(true);
 
   return (
@@ -13,7 +15,7 @@ export default function WhatsAppFloating() {
       {/* Tooltip bubble */}
       {showTooltip && (
         <div className="hidden sm:flex items-center gap-2 px-3.5 py-2 rounded-2xl bg-forest-900 text-cream-50 text-xs font-semibold shadow-xl border border-gold-400/30 animate-fade-in">
-          <span>Need help or want to order via WhatsApp?</span>
+          <span>{t("floating.chatWithUs") || "Need help or want to order via WhatsApp?"}</span>
           <button
             onClick={() => setShowTooltip(false)}
             aria-label="Dismiss assistance tooltip"
@@ -39,3 +41,4 @@ export default function WhatsAppFloating() {
     </aside>
   );
 }
+

@@ -2,8 +2,11 @@
 
 import React from "react";
 import { Star, Quote, Sparkles, CheckCircle } from "lucide-react";
+import { useLanguage } from "../context/LanguageContext";
 
 export default function Testimonials() {
+  const { t } = useLanguage();
+
   const testimonials = [
     {
       name: "Meenakshi Sundaram",
@@ -50,19 +53,19 @@ export default function Testimonials() {
         <div className="text-center max-w-3xl mx-auto mb-16">
           <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-forest-100 text-forest-800 text-xs font-bold uppercase tracking-widest mb-3">
             <Sparkles className="w-3.5 h-3.5 text-forest-600" />
-            <span>Customer Experiences</span>
+            <span>{t("testimonials.sectionBadge") || "Customer Experiences"}</span>
           </div>
           <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-bold text-forest-950 tracking-tight">
-            Loved in Over 10,000 Kitchens
+            {t("testimonials.sectionTitle") || "Loved in Over 10,000 Kitchens"}
           </h2>
           <p className="mt-4 text-forest-800/80 text-sm sm:text-base leading-relaxed">
-            Read real stories from home cooks, master chefs, and wellness advocates who trust our uncompromised spices.
+            {t("testimonials.sectionDesc") || "Read real stories from home cooks, master chefs, and wellness advocates who trust our uncompromised spices."}
           </p>
         </div>
 
         {/* 4 Testimonial Cards Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {testimonials.map((t, idx) => (
+          {testimonials.map((item, idx) => (
             <div
               key={idx}
               className="p-6 rounded-3xl bg-white border border-cream-200/90 shadow-sm hover:shadow-luxury hover:border-gold-500/30 transition-all duration-300 flex flex-col justify-between"
@@ -71,7 +74,7 @@ export default function Testimonials() {
                 {/* Quote Icon & Stars */}
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex text-gold-500">
-                    {[...Array(t.rating)].map((_, i) => (
+                    {[...Array(item.rating)].map((_, i) => (
                       <Star key={i} className="w-4 h-4 fill-current" />
                     ))}
                   </div>
@@ -80,26 +83,29 @@ export default function Testimonials() {
 
                 {/* Review Text */}
                 <p className="text-xs sm:text-sm text-forest-850 leading-relaxed italic text-forest-900 font-light mb-6">
-                  &ldquo;{t.review}&rdquo;
+                  &ldquo;{item.review}&rdquo;
                 </p>
               </div>
 
               {/* Author Info */}
               <div className="pt-4 border-t border-cream-100 flex items-center gap-3">
                 <img
-                  src={t.avatar}
-                  alt={t.name}
+                  src={item.avatar}
+                  alt={item.name}
                   className="w-11 h-11 rounded-full object-cover border-2 border-gold-400/40"
                 />
                 <div className="min-w-0">
-                  <div className="flex items-center gap-1">
+                  <div className="flex items-center gap-1.5 flex-wrap">
                     <h3 className="font-serif text-sm font-bold text-forest-950 truncate">
-                      {t.name}
+                      {item.name}
                     </h3>
-                    <CheckCircle className="w-3.5 h-3.5 text-emerald-600 flex-shrink-0" />
+                    <span className="inline-flex items-center gap-0.5 text-[10px] text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded-full font-medium border border-emerald-200/80 flex-shrink-0">
+                      <CheckCircle className="w-3 h-3 text-emerald-600" />
+                      {t("testimonials.verifiedCustomer")}
+                    </span>
                   </div>
-                  <p className="text-[11px] text-forest-600 truncate">{t.role}</p>
-                  <p className="text-[10px] text-forest-500/80">{t.location}</p>
+                  <p className="text-[11px] text-forest-600 truncate mt-0.5">{item.role}</p>
+                  <p className="text-[10px] text-forest-500/80">{item.location}</p>
                 </div>
               </div>
             </div>

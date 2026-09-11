@@ -4,7 +4,9 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { siteConfig } from "../config/siteConfig";
 import { useCart } from "../context/CartContext";
+import { useLanguage } from "../context/LanguageContext";
 import { generateWhatsAppInquiryUrl } from "../utils/whatsapp";
+import LanguageSwitcher from "./LanguageSwitcher";
 import {
   ShoppingBag,
   Search,
@@ -18,6 +20,7 @@ import {
 
 export default function Navbar({ onSearchFocus }) {
   const { totalItems, setIsCartOpen } = useCart();
+  const { t } = useLanguage();
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -42,13 +45,13 @@ export default function Navbar({ onSearchFocus }) {
   };
 
   const navLinks = [
-    { name: "Home", href: "#hero" },
-    { name: "About", href: "#about" },
-    { name: "Categories", href: "#categories" },
-    { name: "Products", href: "#products" },
-    { name: "Why Choose Us", href: "#why-choose-us" },
-    { name: "Testimonials", href: "#testimonials" },
-    { name: "Contact", href: "#contact" },
+    { name: t("nav.home"), href: "#hero" },
+    { name: t("nav.about"), href: "#about" },
+    { name: t("nav.categories"), href: "#categories" },
+    { name: t("nav.products"), href: "#products" },
+    { name: t("nav.whyChooseUs"), href: "#why-choose-us" },
+    { name: t("nav.testimonials"), href: "#testimonials" },
+    { name: t("nav.contact"), href: "#contact" },
   ];
 
   return (
@@ -56,7 +59,7 @@ export default function Navbar({ onSearchFocus }) {
       {/* Top Notification Announcement Bar */}
       <div className="bg-forest-950 text-gold-200 text-xs py-2 px-4 border-b border-gold-500/20 text-center font-medium tracking-wider flex items-center justify-center gap-2">
         <Sparkles className="w-3.5 h-3.5 text-gold-400 animate-pulse" />
-        <span>Fresh Harvest 2026 Batch Now In Stock • Free Delivery across India on orders above ₹{siteConfig.shipping.freeDeliveryThreshold}</span>
+        <span>{t("announcement.freshHarvest")}</span>
         <span className="hidden md:inline-block text-forest-500">|</span>
         <a
           href={generateWhatsAppInquiryUrl()}
@@ -64,7 +67,7 @@ export default function Navbar({ onSearchFocus }) {
           rel="noopener noreferrer"
           className="hidden md:inline-flex items-center gap-1 text-gold-400 hover:text-gold-300 font-semibold underline ml-1"
         >
-          <MessageCircle className="w-3 h-3" /> Quick WhatsApp Inquiry
+          <MessageCircle className="w-3 h-3" /> {t("announcement.quickInquiry")}
         </a>
       </div>
 
@@ -107,13 +110,16 @@ export default function Navbar({ onSearchFocus }) {
             </nav>
 
             {/* Right Side Actions */}
-            <div className="flex items-center gap-3 sm:gap-4">
+            <div className="flex items-center gap-2.5 sm:gap-3.5">
+              {/* Language Switcher Dropdown */}
+              <LanguageSwitcher />
+
               {/* Search Icon Trigger */}
               <button
                 onClick={handleSearchClick}
-                aria-label="Search Spices"
-                className="p-2.5 rounded-full text-cream-200 hover:text-gold-300 hover:bg-forest-800/80 transition-all"
-                title="Search English & Tamil Spices"
+                aria-label={t("nav.search")}
+                className="p-2 sm:p-2.5 rounded-full text-cream-200 hover:text-gold-300 hover:bg-forest-800/80 transition-all"
+                title={t("nav.search")}
               >
                 <Search className="w-5 h-5" />
               </button>
@@ -121,8 +127,8 @@ export default function Navbar({ onSearchFocus }) {
               {/* Shopping Cart Drawer Trigger */}
               <button
                 onClick={() => setIsCartOpen(true)}
-                aria-label="Open Shopping Cart"
-                className="relative p-2.5 rounded-full text-cream-100 hover:text-gold-300 hover:bg-forest-800/80 transition-all flex items-center justify-center"
+                aria-label={t("nav.viewCart")}
+                className="relative p-2 sm:p-2.5 rounded-full text-cream-100 hover:text-gold-300 hover:bg-forest-800/80 transition-all flex items-center justify-center"
               >
                 <ShoppingBag className="w-5 h-5" />
                 {totalItems > 0 && (
@@ -140,7 +146,7 @@ export default function Navbar({ onSearchFocus }) {
                 className="hidden sm:inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-700/80 hover:bg-emerald-600 border border-emerald-500/40 text-cream-50 text-xs font-semibold tracking-wide shadow-sm hover:shadow-md transition-all duration-300 hover:scale-105"
               >
                 <MessageCircle className="w-4 h-4 text-emerald-300" />
-                <span>WhatsApp Order</span>
+                <span>{t("nav.whatsappOrder")}</span>
               </a>
 
               {/* Mobile Hamburger Toggle */}
@@ -184,8 +190,13 @@ export default function Navbar({ onSearchFocus }) {
                 </button>
               </div>
 
+              {/* Language Switcher inside Mobile Drawer */}
+              <div className="py-4 border-b border-forest-800">
+                <LanguageSwitcher isMobile={true} />
+              </div>
+
               {/* Navigation list */}
-              <nav className="mt-6 flex flex-col space-y-4">
+              <nav className="mt-4 flex flex-col space-y-3">
                 {navLinks.map((link) => (
                   <a
                     key={link.name}
@@ -209,7 +220,7 @@ export default function Navbar({ onSearchFocus }) {
                 className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-forest-800 text-cream-100 font-semibold border border-forest-700"
               >
                 <ShoppingBag className="w-4 h-4 text-gold-400" />
-                <span>View Cart ({totalItems} items)</span>
+                <span>{t("nav.viewCart")} ({totalItems})</span>
               </button>
 
               <a
@@ -219,11 +230,11 @@ export default function Navbar({ onSearchFocus }) {
                 className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-cream-50 font-semibold shadow-md"
               >
                 <MessageCircle className="w-4 h-4" />
-                <span>Chat on WhatsApp</span>
+                <span>{t("nav.whatsappOrder")}</span>
               </a>
 
               <div className="text-center text-xs text-cream-400/80 pt-2">
-                Need Help? Call {siteConfig.whatsappDisplayNumber}
+                {t("nav.needHelp")} {siteConfig.whatsappDisplayNumber}
               </div>
             </div>
           </div>

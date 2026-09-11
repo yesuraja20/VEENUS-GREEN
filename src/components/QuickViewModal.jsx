@@ -2,10 +2,12 @@
 
 import React, { useState } from "react";
 import { useCart } from "../context/CartContext";
+import { useLanguage } from "../context/LanguageContext";
 import { X, Star, ShoppingBag, Check, MapPin, Sparkles, ShieldCheck } from "lucide-react";
 
 export default function QuickViewModal() {
   const { quickViewProduct, setQuickViewProduct, addToCart } = useCart();
+  const { t, getTranslatedProduct } = useLanguage();
   const [selectedWeight, setSelectedWeight] = useState(
     quickViewProduct ? quickViewProduct.weights[0] : null
   );
@@ -23,6 +25,7 @@ export default function QuickViewModal() {
 
   if (!quickViewProduct) return null;
 
+  const item = getTranslatedProduct(quickViewProduct);
   const currentWeight = selectedWeight || quickViewProduct.weights[0];
 
   const handleAdd = () => {
@@ -46,7 +49,7 @@ export default function QuickViewModal() {
         {/* Close Button */}
         <button
           onClick={() => setQuickViewProduct(null)}
-          aria-label="Close modal"
+          aria-label={t("quickView.close") || "Close modal"}
           className="absolute top-4 right-4 z-20 p-2 rounded-full bg-forest-950/80 text-cream-200 hover:text-white transition-colors"
         >
           <X className="w-5 h-5" />
@@ -55,19 +58,19 @@ export default function QuickViewModal() {
         {/* Image Side */}
         <div className="md:w-1/2 relative h-64 md:h-auto bg-forest-950">
           <img
-            src={quickViewProduct.image}
-            alt={quickViewProduct.name}
+            src={item.image}
+            alt={item.name}
             className="w-full h-full object-cover object-center"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-forest-950/70 via-transparent to-transparent" />
           <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between text-cream-100">
             <div className="flex items-center gap-1.5 text-xs bg-forest-900/90 px-3 py-1.5 rounded-full border border-gold-400/30">
               <MapPin className="w-3.5 h-3.5 text-gold-400" />
-              <span>{quickViewProduct.origin}</span>
+              <span>{item.origin}</span>
             </div>
-            {quickViewProduct.badge && (
+            {item.badge && (
               <span className="text-xs bg-gold-500 text-forest-950 font-bold px-3 py-1 rounded-full">
-                {quickViewProduct.badge}
+                {item.badge}
               </span>
             )}
           </div>
@@ -76,17 +79,21 @@ export default function QuickViewModal() {
         {/* Content Side */}
         <div className="md:w-1/2 p-6 md:p-8 flex flex-col justify-between overflow-y-auto">
           <div>
-            {/* Category and Tamil name */}
+            {/* Category and Local name */}
             <div className="flex items-center justify-between text-xs font-bold text-forest-600 mb-1">
-              <span className="uppercase tracking-wider">{quickViewProduct.categoryLabel}</span>
-              <span className="text-emerald-800 font-serif text-sm">{quickViewProduct.tamilName}</span>
+              <span className="uppercase tracking-wider">{item.categoryLabel}</span>
+              {item.tamilName && (
+                <span className="text-emerald-800 font-serif text-sm">{item.tamilName}</span>
+              )}
             </div>
 
             <h3 className="font-serif text-2xl md:text-3xl font-bold text-forest-950 leading-tight">
-              {quickViewProduct.name}{" "}
-              <span className="text-sm font-sans font-medium text-forest-600">
-                ({quickViewProduct.englishName})
-              </span>
+              {item.name}{" "}
+              {item.englishName && item.englishName !== item.name && (
+                <span className="text-sm font-sans font-medium text-forest-600">
+                  ({item.englishName})
+                </span>
+              )}
             </h3>
 
             {/* Rating */}
@@ -96,28 +103,28 @@ export default function QuickViewModal() {
                   <Star key={i} className="w-4 h-4 fill-current" />
                 ))}
               </div>
-              <span className="text-xs font-bold text-forest-900">{quickViewProduct.rating}</span>
-              <span className="text-xs text-forest-600">({quickViewProduct.reviewCount} reviews)</span>
+              <span className="text-xs font-bold text-forest-900">{item.rating}</span>
+              <span className="text-xs text-forest-600">({item.reviewCount} reviews)</span>
             </div>
 
             {/* Description */}
             <p className="mt-4 text-xs sm:text-sm text-forest-800 leading-relaxed font-light">
-              {quickViewProduct.fullDescription || quickViewProduct.shortDescription}
+              {item.fullDescription || item.shortDescription}
             </p>
 
             {/* Purity guarantee pill */}
             <div className="mt-4 p-3 rounded-xl bg-forest-50 border border-forest-200/80 flex items-center gap-2.5 text-xs text-forest-900">
               <ShieldCheck className="w-4 h-4 text-forest-700 flex-shrink-0" />
-              <span>Triple-sorted, aroma-vacuum packed within 24 hours of harvest.</span>
+              <span>{t("quickView.inStock") || "Triple-sorted, vacuum packed within 24 hours."}</span>
             </div>
 
             {/* Weight selector */}
             <div className="mt-5">
               <span className="text-xs font-bold uppercase tracking-wider text-forest-800 block mb-2">
-                Select Quantity:
+                {t("quickView.packWeight") || "Choose Weight:"}
               </span>
               <div className="flex flex-wrap gap-2">
-                {quickViewProduct.weights.map((w) => (
+                {item.weights.map((w) => (
                   <button
                     key={w.label}
                     onClick={() => setSelectedWeight(w)}
@@ -138,7 +145,9 @@ export default function QuickViewModal() {
           <div className="mt-6 pt-5 border-t border-cream-200">
             <div className="flex items-center justify-between mb-4">
               <div>
-                <span className="text-[11px] text-forest-600 uppercase font-bold">Total Price:</span>
+                <span className="text-[11px] text-forest-600 uppercase font-bold">
+                  {t("cartDrawer.grandTotal") || "Total Price"}:
+                </span>
                 <p className="font-serif text-3xl font-bold text-forest-950">
                   ₹{currentWeight.price * quantity}
                 </p>
@@ -175,12 +184,12 @@ export default function QuickViewModal() {
               {isAdded ? (
                 <>
                   <Check className="w-4 h-4 text-gold-300" />
-                  <span>Added to Your Cart!</span>
+                  <span>{t("productCard.addedToCart") || "Added to Your Cart!"}</span>
                 </>
               ) : (
                 <>
                   <ShoppingBag className="w-4 h-4 text-gold-400" />
-                  <span>Add {quantity} Pack to Cart</span>
+                  <span>{t("quickView.addToCart") || `Add to Basket`}</span>
                 </>
               )}
             </button>
@@ -190,3 +199,4 @@ export default function QuickViewModal() {
     </div>
   );
 }
+
