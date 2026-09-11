@@ -370,7 +370,7 @@ export default function CheckoutModal() {
                       name="city"
                       value={formData.city}
                       onChange={handleInputChange}
-                      placeholder="e.g. Chennai / Madurai"
+                      placeholder="e.g. Tirupur / Chennai"
                       className={`w-full pl-10 pr-3.5 py-2.5 rounded-xl bg-white border text-sm text-forest-950 focus:outline-none focus:ring-2 ${
                         errors.city
                           ? "border-rose-400 focus:ring-rose-200"
@@ -393,7 +393,7 @@ export default function CheckoutModal() {
                       maxLength={6}
                       value={formData.pincode}
                       onChange={handleInputChange}
-                      placeholder="600001"
+                      placeholder="641605"
                       className={`w-full pl-10 pr-3.5 py-2.5 rounded-xl bg-white border text-sm text-forest-950 focus:outline-none focus:ring-2 ${
                         errors.pincode
                           ? "border-rose-400 focus:ring-rose-200"

@@ -16,12 +16,13 @@ export const siteConfig = {
   phone: "+91 99433 25457",
   email: "cosmicclothings@gmail.com",
   address: {
-    street: "124, Heritage Spice Enclave, Market Road",
-    city: "Chennai",
+    street: "10/531, Kallukadai Thottam, Chinnakarai, Veerapandi Post, Palladam Road",
+    city: "Tirupur",
     state: "Tamil Nadu",
-    pincode: "600001",
+    pincode: "641605",
     country: "India",
-    fullAddress: "124, Heritage Spice Enclave, Market Road, Chennai, Tamil Nadu - 600001",
+    fullAddress:
+      "10/531, Kallukadai Thottam, Chinnakarai, Veerapandi Post, Palladam Road, Tirupur, Tamil Nadu - 641605",
   },
   
   // Store Policies & Logistics
