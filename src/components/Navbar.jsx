@@ -91,7 +91,7 @@ export default function Navbar({ onSearchFocus }) {
                   {siteConfig.name}
                 </span>
                 <span className="text-[10px] uppercase font-semibold tracking-widest text-gold-400/90 -mt-1">
-                  Spices & Essentials
+                  {t("nav.brandSubtitle") || "Spices & Essentials"}
                 </span>
               </div>
             </Link>
@@ -152,7 +152,7 @@ export default function Navbar({ onSearchFocus }) {
               {/* Mobile Hamburger Toggle */}
               <button
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                aria-label="Toggle mobile menu"
+                aria-label={t("nav.toggleMenu") || "Toggle mobile menu"}
                 className="lg:hidden p-2 rounded-lg text-cream-200 hover:text-gold-300 hover:bg-forest-800 focus:outline-none"
               >
                 {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}

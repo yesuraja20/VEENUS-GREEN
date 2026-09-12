@@ -10,37 +10,41 @@ export default function Testimonials() {
   const testimonials = [
     {
       name: "Meenakshi Sundaram",
-      role: "Traditional Home Chef & Food Blogger",
-      location: "Chennai, Tamil Nadu",
+      role: t("testimonials.role1") || "Traditional Home Chef & Food Blogger",
+      location: t("testimonials.location1") || "Chennai, Tamil Nadu",
       rating: 5,
       review:
+        t("testimonials.review1") ||
         "The Tellicherry Black Pepper and Salem Turmeric powder from Venus Green are truly unmatched. The moment you open the pouch, the aroma fills the whole kitchen. My rasam and vatha kuzhambu taste like my grandmother's cooking!",
       avatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=200&q=80",
     },
     {
       name: "Chef Rajesh Ramanathan",
-      role: "Head Chef, Heritage Bistro",
-      location: "Bengaluru, Karnataka",
+      role: t("testimonials.role2") || "Head Chef, Heritage Bistro",
+      location: t("testimonials.location2") || "Bengaluru, Karnataka",
       rating: 5,
       review:
+        t("testimonials.review2") ||
         "As a restaurant chef, consistent spice quality is make-or-break. Their Green Cardamom pods are huge (true 8mm bold) with oily, pitch-black seeds inside. Sombu and Seeragam have zero dust. Phenomenal purity.",
       avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=200&q=80",
     },
     {
       name: "Ananya Iyer",
-      role: "Ayurvedic Nutritionist",
-      location: "Coimbatore, Tamil Nadu",
+      role: t("testimonials.role3") || "Ayurvedic Nutritionist",
+      location: t("testimonials.location3") || "Coimbatore, Tamil Nadu",
       rating: 5,
       review:
+        t("testimonials.review3") ||
         "I test their turmeric regularly for high curcumin and found it genuine with zero synthetic color. The ginger and compounded asafoetida give immense therapeutic relief. WhatsApp ordering is lightning fast too!",
       avatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=200&q=80",
     },
     {
       name: "Karthik Subramanian",
-      role: "Culinary Enthusiast",
-      location: "Hyderabad, Telangana",
+      role: t("testimonials.role4") || "Culinary Enthusiast",
+      location: t("testimonials.location4") || "Hyderabad, Telangana",
       rating: 5,
       review:
+        t("testimonials.review4") ||
         "The packaging is superb—heavy duty aroma-lock zip pouches that actually work. The Kodaikanal Hill Garlic and Jaathipathiri (mace) elevated my weekend biryani to royal standards. Highly recommend Venus Green!",
       avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=200&q=80",
     },

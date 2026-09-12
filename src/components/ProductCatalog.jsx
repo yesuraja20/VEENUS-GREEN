@@ -148,7 +148,7 @@ export default function ProductCatalog({ activeCategory, onCategoryChange }) {
           {/* Category Filter Pills */}
           <div className="mt-5 pt-5 border-t border-cream-200 flex flex-wrap items-center gap-2">
             <span className="text-xs font-bold uppercase tracking-wider text-forest-700 mr-2 flex items-center gap-1">
-              <SlidersHorizontal className="w-3.5 h-3.5" /> Filter:
+              <SlidersHorizontal className="w-3.5 h-3.5" /> {t("catalog.filter") || "Filter"}:
             </span>
             {categoriesList.map((cat) => {
               const isSelected = selectedCategory === cat.id;
@@ -177,7 +177,7 @@ export default function ProductCatalog({ activeCategory, onCategoryChange }) {
             {t("catalog.of")} {products.length} {t("catalog.spices")}
             {searchQuery && (
               <span>
-                {" "}for &ldquo;<span className="text-forest-950 font-bold">{searchQuery}</span>&rdquo;
+                {" "}{t("catalog.forSearch") || "for"} &ldquo;<span className="text-forest-950 font-bold">{searchQuery}</span>&rdquo;
               </span>
             )}
           </p>

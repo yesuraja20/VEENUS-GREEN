@@ -190,7 +190,7 @@ export default function Footer({ onCategoryClick }) {
                 </button>
               </li>
               <li className="pt-2 text-[11px] text-gold-400/80">
-                Tellicherry Pepper • Salem Turmeric • Kodaikanal Garlic • Idukki Cardamom
+                {t("footer.featuredSpices") || "Tellicherry Pepper • Salem Turmeric • Kodaikanal Garlic • Idukki Cardamom"}
               </li>
             </ul>
           </div>
@@ -214,7 +214,7 @@ export default function Footer({ onCategoryClick }) {
               <div className="flex items-center gap-2.5">
                 <MessageCircle className="w-4 h-4 text-emerald-400 flex-shrink-0" />
                 <a href={generateWhatsAppInquiryUrl()} target="_blank" rel="noopener noreferrer" className="hover:text-gold-300">
-                  WhatsApp: {siteConfig.whatsappDisplayNumber}
+                  {t("footer.whatsappLabel") || "WhatsApp:"} {siteConfig.whatsappDisplayNumber}
                 </a>
               </div>
               <div className="flex items-center gap-2.5">

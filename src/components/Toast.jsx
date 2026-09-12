@@ -2,15 +2,22 @@
 
 import React from "react";
 import { useCart } from "../context/CartContext";
+import { useLanguage } from "../context/LanguageContext";
 import { CheckCircle2, Info, AlertCircle, X } from "lucide-react";
 
 export default function Toast() {
   const { toast } = useCart();
+  const { t } = useLanguage();
 
   if (!toast) return null;
 
   const isSuccess = toast.type === "success";
   const isError = toast.type === "error";
+
+  const message =
+    typeof toast.message === "object" && toast.message.key
+      ? t(toast.message.key, toast.message.params) || toast.message.fallback
+      : toast.message;
 
   return (
     <div className="fixed bottom-24 right-6 z-50 animate-fade-in max-w-sm w-full pointer-events-none">
@@ -28,7 +35,7 @@ export default function Toast() {
           {isError && <AlertCircle className="w-5 h-5 text-rose-400" />}
           {!isSuccess && !isError && <Info className="w-5 h-5 text-emerald-300" />}
         </div>
-        <div className="text-sm font-medium flex-1 tracking-wide">{toast.message}</div>
+        <div className="text-sm font-medium flex-1 tracking-wide">{message}</div>
       </div>
     </div>
   );

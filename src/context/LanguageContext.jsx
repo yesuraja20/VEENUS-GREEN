@@ -86,29 +86,64 @@ export function LanguageProvider({ children }) {
     return result;
   };
 
+  const PRODUCT_ID_ALIASES = {
+    "cardamom": "green-cardamom",
+    "cinnamon": "cinnamon-bark",
+    "asafoetida": "asafoetida-perungayam",
+    "turmeric-powder": "salem-turmeric-powder",
+    "ginger": "dry-ginger",
+    "garlic": "hill-garlic",
+    "mace": "mace-flower",
+  };
+
   /**
    * Helper function to get translated product object
    */
   const getTranslatedProduct = (product) => {
     if (!product) return product;
 
-    const prodTranslation = productTranslations[product.id];
+    const prodTranslation =
+      productTranslations[product.id] ||
+      productTranslations[PRODUCT_ID_ALIASES[product.id]];
     if (!prodTranslation) return product;
 
     const localizedName =
-      prodTranslation.names[currentLanguage] ||
-      prodTranslation.names[DEFAULT_LANGUAGE] ||
+      prodTranslation.names?.[currentLanguage] ||
+      prodTranslation.names?.[DEFAULT_LANGUAGE] ||
       product.name;
 
     const localizedShortDesc =
-      prodTranslation.shortDescriptions[currentLanguage] ||
-      prodTranslation.shortDescriptions[DEFAULT_LANGUAGE] ||
+      prodTranslation.shortDescriptions?.[currentLanguage] ||
+      prodTranslation.shortDescriptions?.[DEFAULT_LANGUAGE] ||
       product.shortDescription;
+
+    const localizedFullDesc =
+      prodTranslation.fullDescriptions?.[currentLanguage] ||
+      prodTranslation.fullDescriptions?.[DEFAULT_LANGUAGE] ||
+      product.fullDescription;
+
+    const localizedBadge =
+      prodTranslation.badges?.[currentLanguage] ||
+      prodTranslation.badges?.[DEFAULT_LANGUAGE] ||
+      product.badge;
+
+    const localizedOrigin =
+      prodTranslation.origins?.[currentLanguage] ||
+      prodTranslation.origins?.[DEFAULT_LANGUAGE] ||
+      product.origin;
+
+    const localizedSecondaryName =
+      prodTranslation.secondaryNames?.[currentLanguage] ||
+      (currentLanguage === "en" ? product.tamilName : product.englishName);
 
     return {
       ...product,
       name: localizedName,
       shortDescription: localizedShortDesc,
+      fullDescription: localizedFullDesc,
+      badge: localizedBadge,
+      origin: localizedOrigin,
+      secondaryName: localizedSecondaryName,
       originalEnglishName: product.name,
     };
   };

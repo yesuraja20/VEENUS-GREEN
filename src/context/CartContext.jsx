@@ -76,7 +76,11 @@ export function CartProvider({ children }) {
       }
     });
 
-    showToast(`Added ${quantity} × ${product.name} (${weightOption.label}) to cart!`, "success");
+    showToast({
+      key: "toast.addedToCart",
+      params: { quantity, name: product.name, weight: weightOption.label },
+      fallback: `Added ${quantity} × ${product.name} (${weightOption.label}) to cart!`,
+    }, "success");
   };
 
   // Update item quantity
@@ -97,7 +101,11 @@ export function CartProvider({ children }) {
     setCartItems((prevItems) => {
       const removed = prevItems.find((item) => item.cartKey === cartKey);
       if (removed) {
-        showToast(`Removed ${removed.name} from cart`, "info");
+        showToast({
+          key: "toast.removedFromCart",
+          params: { name: removed.name },
+          fallback: `Removed ${removed.name} from cart`,
+        }, "info");
       }
       return prevItems.filter((item) => item.cartKey !== cartKey);
     });

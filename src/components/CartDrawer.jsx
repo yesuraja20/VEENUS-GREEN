@@ -78,14 +78,14 @@ export default function CartDrawer() {
                     {t("cartDrawer.title")}
                   </h3>
                   <p className="text-xs text-gold-300/80 font-medium">
-                    {totalItems} {totalItems === 1 ? "item" : "items"}
+                    {totalItems} {totalItems === 1 ? t("cartDrawer.item") || "item" : t("cartDrawer.items") || "items"}
                   </p>
                 </div>
               </div>
 
               <button
                 onClick={() => setIsCartOpen(false)}
-                aria-label="Close cart"
+                aria-label={t("cartDrawer.closeCart") || "Close cart"}
                 className="p-2 text-cream-300 hover:text-white rounded-lg hover:bg-forest-800 transition-colors"
               >
                 <X className="w-5 h-5" />
@@ -144,7 +144,7 @@ export default function CartDrawer() {
                     onClick={clearCart}
                     className="text-xs text-rose-700 hover:text-rose-900 font-medium underline"
                   >
-                    Clear
+                    {t("cartDrawer.clear") || "Clear"}
                   </button>
                 </div>
 
@@ -178,7 +178,7 @@ export default function CartDrawer() {
                             </button>
                           </div>
                           <p className="text-[11px] text-emerald-800 font-semibold -mt-0.5">
-                            {item.tamilName} • <span className="text-forest-600">{item.selectedWeight?.label}</span>
+                            {translated.secondaryName || item.tamilName} • <span className="text-forest-600">{item.selectedWeight?.label}</span>
                           </p>
                         </div>
 
@@ -207,7 +207,7 @@ export default function CartDrawer() {
                               ₹{item.selectedWeight?.price * item.quantity}
                             </span>
                             <span className="block text-[10px] text-forest-600">
-                              ₹{item.selectedWeight?.price} each
+                              ₹{item.selectedWeight?.price} {t("cartDrawer.each") || "each"}
                             </span>
                           </div>
                         </div>
@@ -264,7 +264,7 @@ export default function CartDrawer() {
               </div>
 
               <p className="text-[11px] text-center text-forest-600/70">
-                🔒 Safe & Hygienic Packaging • 100% Quality Assured
+                🔒 {t("cartDrawer.safePackaging") || "Safe & Hygienic Packaging • 100% Quality Assured"}
               </p>
             </div>
           )}

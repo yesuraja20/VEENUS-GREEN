@@ -30,7 +30,7 @@ export default function CheckoutModal() {
     setIsCheckoutOpen,
     clearCart,
   } = useCart();
-  const { t, getTranslatedProduct } = useLanguage();
+  const { t, getTranslatedProduct, currentLanguage } = useLanguage();
 
   const [formData, setFormData] = useState({
     name: "",
@@ -123,7 +123,7 @@ export default function CheckoutModal() {
     const orderId = "VG-" + Math.floor(100000 + Math.random() * 900000);
     setOrderConfirmed({
       orderId,
-      date: new Date().toLocaleDateString("en-IN", {
+      date: new Date().toLocaleDateString(currentLanguage === "en" ? "en-IN" : `${currentLanguage}-IN`, {
         day: "numeric",
         month: "short",
         year: "numeric",
@@ -168,7 +168,7 @@ export default function CheckoutModal() {
           </div>
           <button
             onClick={handleClose}
-            aria-label="Close checkout"
+            aria-label={t("checkout.closeModal") || "Close checkout"}
             className="p-2 text-cream-300 hover:text-white rounded-lg hover:bg-forest-800 transition-colors"
           >
             <X className="w-5 h-5" />
@@ -257,7 +257,7 @@ export default function CheckoutModal() {
                       <div className="min-w-0 pr-2">
                         <p className="font-bold text-forest-950 truncate">{translated.name}</p>
                         <p className="text-[11px] text-emerald-800">
-                          {item.tamilName} • {item.selectedWeight?.label} × {item.quantity}
+                          {translated.secondaryName || item.tamilName} • {item.selectedWeight?.label} × {item.quantity}
                         </p>
                       </div>
                       <span className="font-bold text-forest-950 flex-shrink-0">

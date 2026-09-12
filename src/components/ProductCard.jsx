@@ -39,7 +39,7 @@ export default function ProductCard({ product }) {
         <div className="absolute top-3 left-3 z-10 flex flex-col gap-1">
           {product.badge && (
             <span className="px-2.5 py-1 rounded-full bg-forest-950/80 border border-gold-400/40 text-gold-300 text-[10px] sm:text-xs font-bold tracking-wide backdrop-blur-md">
-              {product.badge}
+              {translated.badge || product.badge}
             </span>
           )}
         </div>
@@ -68,10 +68,10 @@ export default function ProductCard({ product }) {
           {/* Subtitle & Category Tag */}
           <div className="flex items-center justify-between gap-2 mb-1">
             <span className="text-xs font-bold text-emerald-800 tracking-wider">
-              {currentLanguage === "en" ? product.tamilName : product.englishName}
+              {translated.secondaryName || product.tamilName}
             </span>
             <span className="text-[10px] uppercase font-semibold text-forest-600/70">
-              {product.origin.split(",")[0]}
+              {(translated.origin || product.origin).split(",")[0]}
             </span>
           </div>
 
@@ -130,7 +130,7 @@ export default function ProductCard({ product }) {
             <div className="flex items-center rounded-lg border border-cream-300 bg-cream-100 overflow-hidden">
               <button
                 onClick={handleDecrement}
-                aria-label="Decrease quantity"
+                aria-label={t("productCard.decreaseQuantity") || "Decrease quantity"}
                 className="p-1.5 text-forest-800 hover:bg-cream-200 transition-colors"
               >
                 <Minus className="w-3.5 h-3.5" />
@@ -140,7 +140,7 @@ export default function ProductCard({ product }) {
               </span>
               <button
                 onClick={handleIncrement}
-                aria-label="Increase quantity"
+                aria-label={t("productCard.increaseQuantity") || "Increase quantity"}
                 className="p-1.5 text-forest-800 hover:bg-cream-200 transition-colors"
               >
                 <Plus className="w-3.5 h-3.5" />

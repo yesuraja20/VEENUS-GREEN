@@ -82,18 +82,13 @@ export default function QuickViewModal() {
             {/* Category and Local name */}
             <div className="flex items-center justify-between text-xs font-bold text-forest-600 mb-1">
               <span className="uppercase tracking-wider">{item.categoryLabel}</span>
-              {item.tamilName && (
-                <span className="text-emerald-800 font-serif text-sm">{item.tamilName}</span>
+              {item.secondaryName && (
+                <span className="text-emerald-800 font-serif text-sm">{item.secondaryName}</span>
               )}
             </div>
 
             <h3 className="font-serif text-2xl md:text-3xl font-bold text-forest-950 leading-tight">
-              {item.name}{" "}
-              {item.englishName && item.englishName !== item.name && (
-                <span className="text-sm font-sans font-medium text-forest-600">
-                  ({item.englishName})
-                </span>
-              )}
+              {item.name}
             </h3>
 
             {/* Rating */}
@@ -115,7 +110,7 @@ export default function QuickViewModal() {
             {/* Purity guarantee pill */}
             <div className="mt-4 p-3 rounded-xl bg-forest-50 border border-forest-200/80 flex items-center gap-2.5 text-xs text-forest-900">
               <ShieldCheck className="w-4 h-4 text-forest-700 flex-shrink-0" />
-              <span>{t("quickView.inStock") || "Triple-sorted, vacuum packed within 24 hours."}</span>
+              <span>{t("quickView.purityGuarantee") || "Triple-sorted, vacuum packed within 24 hours."}</span>
             </div>
 
             {/* Weight selector */}
@@ -146,7 +141,7 @@ export default function QuickViewModal() {
             <div className="flex items-center justify-between mb-4">
               <div>
                 <span className="text-[11px] text-forest-600 uppercase font-bold">
-                  {t("cartDrawer.grandTotal") || "Total Price"}:
+                  {t("quickView.totalPrice") || t("cartDrawer.grandTotal") || "Total Price"}:
                 </span>
                 <p className="font-serif text-3xl font-bold text-forest-950">
                   ₹{currentWeight.price * quantity}

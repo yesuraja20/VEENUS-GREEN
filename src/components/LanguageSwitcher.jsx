@@ -5,7 +5,7 @@ import { useLanguage } from "../context/LanguageContext";
 import { Globe, Check, ChevronDown } from "lucide-react";
 
 export default function LanguageSwitcher({ isMobile = false }) {
-  const { currentLanguage, setLanguage, languages, activeLanguageMeta } = useLanguage();
+  const { currentLanguage, setLanguage, languages, activeLanguageMeta, t } = useLanguage();
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
 
@@ -44,7 +44,7 @@ export default function LanguageSwitcher({ isMobile = false }) {
       <div className="w-full">
         <div className="flex items-center gap-2 mb-2 text-xs font-bold uppercase tracking-wider text-gold-400">
           <Globe className="w-4 h-4" />
-          <span>Select Language / மொழி</span>
+          <span>{t("nav.selectLanguageTitle") || "Select Language / மொழி"}</span>
         </div>
         <div className="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto pr-1">
           {languages.map((lang) => {
@@ -80,7 +80,7 @@ export default function LanguageSwitcher({ isMobile = false }) {
         onClick={() => setIsOpen(!isOpen)}
         aria-expanded={isOpen}
         aria-haspopup="true"
-        aria-label="Select website language"
+        aria-label={t("nav.selectLanguageAria") || "Select website language"}
         className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-forest-800/90 hover:bg-forest-750 border border-gold-500/30 text-cream-100 text-xs font-medium tracking-wide shadow-sm hover:border-gold-400 transition-all duration-200 group"
       >
         <Globe className="w-3.5 h-3.5 text-gold-400 group-hover:scale-110 transition-transform" />
@@ -99,10 +99,10 @@ export default function LanguageSwitcher({ isMobile = false }) {
         <div className="absolute right-0 mt-2 w-64 rounded-2xl bg-forest-900 border border-gold-500/30 shadow-2xl p-2 z-50 animate-in fade-in zoom-in-95 duration-150 backdrop-blur-lg">
           <div className="px-3 py-2 border-b border-forest-800/80 mb-1">
             <p className="text-[11px] font-bold uppercase tracking-wider text-gold-400">
-              Languages / மொழிகள்
+              {t("nav.languagesTitle") || "Languages / மொழிகள்"}
             </p>
             <p className="text-[10px] text-cream-400 mt-0.5">
-              Choose your preferred regional language
+              {t("nav.languagesSubtitle") || "Choose your preferred regional language"}
             </p>
           </div>
 
