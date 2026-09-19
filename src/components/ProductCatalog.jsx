@@ -1,12 +1,13 @@
 "use client";
 
 import React, { useState, useMemo } from "react";
-import { products } from "../data/products";
 import ProductCard from "./ProductCard";
 import { useLanguage } from "../context/LanguageContext";
+import { useStore } from "../context/StoreContext";
 import { Search, SlidersHorizontal, Sparkles, X, ArrowUpDown } from "lucide-react";
 
 export default function ProductCatalog({ activeCategory, onCategoryChange }) {
+  const { products } = useStore();
   const { t, getTranslatedProduct, currentLanguage } = useLanguage();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState(activeCategory || "all");

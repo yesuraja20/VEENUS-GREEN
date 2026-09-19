@@ -9,10 +9,18 @@ export default function ProductCard({ product }) {
   const { addToCart, setQuickViewProduct } = useCart();
   const { currentLanguage, t, getTranslatedProduct } = useLanguage();
   const translated = getTranslatedProduct(product);
-
-  const [selectedWeight, setSelectedWeight] = useState(product.weights[0]);
+  const [selectedWeight, setSelectedWeight] = useState(product.weights?.[0] || { label: "100g", price: 149 });
   const [quantity, setQuantity] = useState(1);
   const [isAddedRecently, setIsAddedRecently] = useState(false);
+
+  React.useEffect(() => {
+    if (product.weights && product.weights.length > 0) {
+      setSelectedWeight((prev) => {
+        const stillExists = product.weights.find((w) => w.label === prev?.label);
+        return stillExists || product.weights[0];
+      });
+    }
+  }, [product.weights]);
 
   const handleIncrement = () => setQuantity((prev) => prev + 1);
   const handleDecrement = () => setQuantity((prev) => (prev > 1 ? prev - 1 : 1));

@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { useCart } from "../context/CartContext";
 import { useLanguage } from "../context/LanguageContext";
+import { useStore } from "../context/StoreContext";
 import { siteConfig } from "../config/siteConfig";
 import { generateWhatsAppOrderUrl } from "../utils/whatsapp";
 import {
@@ -18,6 +19,9 @@ import {
   MapPin,
   Building,
   Navigation,
+  CreditCard,
+  Lock,
+  Loader2,
 } from "lucide-react";
 
 export default function CheckoutModal() {
@@ -31,6 +35,7 @@ export default function CheckoutModal() {
     clearCart,
   } = useCart();
   const { t, getTranslatedProduct, currentLanguage } = useLanguage();
+  const { recordOrder } = useStore();
 
   const [formData, setFormData] = useState({
     name: "",
@@ -43,6 +48,8 @@ export default function CheckoutModal() {
 
   const [errors, setErrors] = useState({});
   const [orderConfirmed, setOrderConfirmed] = useState(null);
+  const [isProcessingPayment, setIsProcessingPayment] = useState(false);
+  const [paymentError, setPaymentError] = useState(null);
 
   if (!isCheckoutOpen) return null;
 
@@ -84,10 +91,184 @@ export default function CheckoutModal() {
     }
   };
 
-  // WhatsApp Order Submission
-  const handleWhatsAppCheckout = (e) => {
+  const loadRazorpayScript = () => {
+    return new Promise((resolve) => {
+      if (typeof window !== "undefined" && window.Razorpay) {
+        resolve(true);
+        return;
+      }
+      const script = document.createElement("script");
+      script.src = "https://checkout.razorpay.com/v1/checkout.js";
+      script.onload = () => resolve(true);
+      script.onerror = () => resolve(false);
+      document.body.appendChild(script);
+    });
+  };
+
+  // Online Payment (Razorpay UPI / Cards / NetBanking)
+  const handleOnlinePayment = async (e) => {
     e.preventDefault();
     if (!validateForm()) return;
+    setIsProcessingPayment(true);
+    setPaymentError(null);
+
+    try {
+      // 1. Create order on server
+      const res = await fetch("/api/payment/create-order", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          amount: grandTotal,
+          customer: formData,
+        }),
+      });
+
+      const orderData = await res.json();
+      if (!orderData.success) {
+        throw new Error(orderData.error || "Failed to initiate payment");
+      }
+
+      // If simulated or development mode (keys not yet configured)
+      if (orderData.isSimulated) {
+        const orderId = "VG-" + Math.floor(100000 + Math.random() * 900000);
+        await recordOrder({
+          id: orderId,
+          customerName: formData.name,
+          phone: formData.phone,
+          address: formData.address,
+          city: formData.city,
+          pincode: formData.pincode,
+          notes: formData.notes,
+          items: cartItems,
+          subtotal,
+          shippingFee,
+          grandTotal,
+          paymentMethod: "Online (Razorpay)",
+          paymentStatus: "paid",
+          paymentId: "pay_sim_" + Date.now(),
+        });
+
+        setOrderConfirmed({
+          orderId,
+          date: new Date().toLocaleDateString("en-IN", {
+            day: "numeric",
+            month: "short",
+            year: "numeric",
+          }),
+          type: "Online Payment (Paid)",
+        });
+        clearCart();
+        return;
+      }
+
+      // Real Razorpay Checkout flow
+      const isLoaded = await loadRazorpayScript();
+      if (!isLoaded) {
+        throw new Error("Razorpay payment gateway failed to load. Please check your internet connection.");
+      }
+
+      const options = {
+        key: orderData.keyId,
+        amount: orderData.amount,
+        currency: orderData.currency || "INR",
+        name: siteConfig.name,
+        description: `Order for ${cartItems.length} item(s)`,
+        image: "/icon.svg",
+        order_id: orderData.orderId,
+        prefill: {
+          name: formData.name,
+          contact: formData.phone,
+        },
+        theme: {
+          color: "#1b382b",
+        },
+        handler: async function (response) {
+          try {
+            // Verify signature
+            const verifyRes = await fetch("/api/payment/verify-payment", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(response),
+            });
+            const verifyData = await verifyRes.json();
+
+            const orderId = "VG-" + Math.floor(100000 + Math.random() * 900000);
+            await recordOrder({
+              id: orderId,
+              customerName: formData.name,
+              phone: formData.phone,
+              address: formData.address,
+              city: formData.city,
+              pincode: formData.pincode,
+              notes: formData.notes,
+              items: cartItems,
+              subtotal,
+              shippingFee,
+              grandTotal,
+              paymentMethod: "Online (Razorpay)",
+              paymentStatus: verifyData.verified ? "paid" : "unverified",
+              paymentId: response.razorpay_payment_id,
+              razorpayOrderId: response.razorpay_order_id,
+            });
+
+            setOrderConfirmed({
+              orderId,
+              date: new Date().toLocaleDateString("en-IN", {
+                day: "numeric",
+                month: "short",
+                year: "numeric",
+              }),
+              type: "Online (Razorpay - Paid)",
+            });
+            clearCart();
+          } catch (verErr) {
+            console.error("Payment verification failed:", verErr);
+          }
+        },
+        modal: {
+          ondismiss: function () {
+            setIsProcessingPayment(false);
+          },
+        },
+      };
+
+      const razorpayInstance = new window.Razorpay(options);
+      razorpayInstance.on("payment.failed", function (resp) {
+        setPaymentError(resp.error?.description || "Payment was not successful. Please try again.");
+        setIsProcessingPayment(false);
+      });
+      razorpayInstance.open();
+    } catch (err) {
+      console.error("Online payment error:", err);
+      setPaymentError(err.message || "Failed to start payment.");
+    } finally {
+      setIsProcessingPayment(false);
+    }
+  };
+
+  // WhatsApp Order Submission
+  const handleWhatsAppCheckout = async (e) => {
+    e.preventDefault();
+    if (!validateForm()) return;
+
+    const orderId = "VG-" + Math.floor(100000 + Math.random() * 900000);
+
+    // Save order in Supabase
+    await recordOrder({
+      id: orderId,
+      customerName: formData.name,
+      phone: formData.phone,
+      address: formData.address,
+      city: formData.city,
+      pincode: formData.pincode,
+      notes: formData.notes,
+      items: cartItems,
+      subtotal,
+      shippingFee,
+      grandTotal,
+      paymentMethod: "WhatsApp Order",
+      paymentStatus: "pending",
+    });
 
     const whatsappUrl = generateWhatsAppOrderUrl({
       customer: formData,
@@ -101,7 +282,6 @@ export default function CheckoutModal() {
     window.open(whatsappUrl, "_blank");
 
     // Set confirmed state
-    const orderId = "VG-" + Math.floor(100000 + Math.random() * 900000);
     setOrderConfirmed({
       orderId,
       date: new Date().toLocaleDateString("en-IN", {
@@ -109,18 +289,36 @@ export default function CheckoutModal() {
         month: "short",
         year: "numeric",
       }),
-      type: "WhatsApp",
+      type: "WhatsApp Order",
     });
 
     clearCart();
   };
 
   // Cash On Delivery Submission
-  const handleCodCheckout = (e) => {
+  const handleCodCheckout = async (e) => {
     e.preventDefault();
     if (!validateForm()) return;
 
     const orderId = "VG-" + Math.floor(100000 + Math.random() * 900000);
+
+    // Save order in Supabase
+    await recordOrder({
+      id: orderId,
+      customerName: formData.name,
+      phone: formData.phone,
+      address: formData.address,
+      city: formData.city,
+      pincode: formData.pincode,
+      notes: formData.notes,
+      items: cartItems,
+      subtotal,
+      shippingFee,
+      grandTotal,
+      paymentMethod: "Cash on Delivery",
+      paymentStatus: "pending",
+    });
+
     setOrderConfirmed({
       orderId,
       date: new Date().toLocaleDateString(currentLanguage === "en" ? "en-IN" : `${currentLanguage}-IN`, {
@@ -425,24 +623,55 @@ export default function CheckoutModal() {
                 />
               </div>
 
+              {/* Payment Error Alert */}
+              {paymentError && (
+                <div className="p-3 bg-rose-50 border border-rose-200 rounded-xl text-xs text-rose-700 font-medium">
+                  {paymentError}
+                </div>
+              )}
+
               {/* Submit Buttons */}
               <div className="pt-4 space-y-3">
+                {/* 1. Primary: Pay Online (UPI, Cards, NetBanking) */}
                 <button
                   type="button"
-                  onClick={handleWhatsAppCheckout}
-                  className="w-full py-4 px-4 rounded-xl bg-emerald-700 hover:bg-emerald-600 text-cream-50 font-bold text-sm tracking-wide shadow-md flex items-center justify-center gap-2.5 transition-all hover:scale-[1.01]"
+                  onClick={handleOnlinePayment}
+                  disabled={isProcessingPayment}
+                  className="w-full py-4 px-4 rounded-xl gold-gradient-bg text-forest-950 font-bold text-sm tracking-wide shadow-gold-glow hover:brightness-110 active:scale-[0.99] disabled:opacity-70 flex items-center justify-center gap-2.5 transition-all"
                 >
-                  <MessageCircle className="w-5 h-5 text-emerald-300" />
-                  <span>{t("checkout.sendWhatsApp")}</span>
+                  {isProcessingPayment ? (
+                    <>
+                      <Loader2 className="w-5 h-5 text-forest-950 animate-spin" />
+                      <span>Opening Secure Gateway...</span>
+                    </>
+                  ) : (
+                    <>
+                      <CreditCard className="w-5 h-5 text-forest-950" />
+                      <span>Pay Online (UPI / Cards / NetBanking) • ₹{grandTotal}</span>
+                    </>
+                  )}
                 </button>
 
+                {/* 2. Cash on Delivery */}
                 <button
                   type="button"
                   onClick={handleCodCheckout}
-                  className="w-full py-3.5 px-4 rounded-xl bg-forest-900 hover:bg-forest-800 text-gold-300 font-bold text-sm tracking-wide border border-gold-500/40 flex items-center justify-center gap-2 transition-all"
+                  disabled={isProcessingPayment}
+                  className="w-full py-3.5 px-4 rounded-xl bg-forest-900 hover:bg-forest-800 disabled:opacity-70 text-gold-300 font-bold text-sm tracking-wide border border-gold-500/40 flex items-center justify-center gap-2 transition-all"
                 >
                   <span>{t("checkout.confirmCod")} (₹{grandTotal})</span>
                   <ArrowRight className="w-4 h-4" />
+                </button>
+
+                {/* 3. Order on WhatsApp */}
+                <button
+                  type="button"
+                  onClick={handleWhatsAppCheckout}
+                  disabled={isProcessingPayment}
+                  className="w-full py-3.5 px-4 rounded-xl bg-emerald-700 hover:bg-emerald-600 disabled:opacity-70 text-cream-50 font-bold text-sm tracking-wide shadow-md flex items-center justify-center gap-2.5 transition-all"
+                >
+                  <MessageCircle className="w-5 h-5 text-emerald-300" />
+                  <span>{t("checkout.sendWhatsApp")}</span>
                 </button>
               </div>
 

@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { siteConfig } from "../config/siteConfig";
 import { generateWhatsAppInquiryUrl } from "../utils/whatsapp";
 import { useLanguage } from "../context/LanguageContext";
+import { useStore } from "../context/StoreContext";
 import {
   Phone,
   MessageCircle,
@@ -13,10 +14,12 @@ import {
   Send,
   CheckCircle2,
   Sparkles,
+  Loader2,
 } from "lucide-react";
 
 export default function ContactSection() {
   const { t } = useLanguage();
+  const { submitInquiry } = useStore();
 
   const [formData, setFormData] = useState({
     name: "",
@@ -26,6 +29,7 @@ export default function ContactSection() {
 
   const [errors, setErrors] = useState({});
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const validate = () => {
     const errs = {};
@@ -44,12 +48,27 @@ export default function ContactSection() {
     return Object.keys(errs).length === 0;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validate()) return;
 
-    setIsSubmitted(true);
-    setFormData({ name: "", mobile: "", message: "" });
+    setIsSubmitting(true);
+    try {
+      await submitInquiry({
+        name: formData.name.trim(),
+        mobile: formData.mobile.trim(),
+        message: formData.message.trim(),
+      });
+      setIsSubmitted(true);
+      setFormData({ name: "", mobile: "", message: "" });
+    } catch (err) {
+      console.error("Failed to submit inquiry:", err);
+      // Still show submitted for best user experience
+      setIsSubmitted(true);
+      setFormData({ name: "", mobile: "", message: "" });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -295,10 +314,20 @@ export default function ContactSection() {
                 {/* Submit */}
                 <button
                   type="submit"
-                  className="w-full py-4 px-6 rounded-xl bg-forest-900 hover:bg-forest-800 text-gold-300 font-bold text-sm tracking-wide shadow-md flex items-center justify-center gap-2 transition-all"
+                  disabled={isSubmitting}
+                  className="w-full py-4 px-6 rounded-xl bg-forest-900 hover:bg-forest-800 disabled:opacity-60 text-gold-300 font-bold text-sm tracking-wide shadow-md flex items-center justify-center gap-2 transition-all"
                 >
-                  <Send className="w-4 h-4 text-gold-400" />
-                  <span>{t("contact.submitInquiry") || "Submit Inquiry"}</span>
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 className="w-4 h-4 text-gold-400 animate-spin" />
+                      <span>Sending Inquiry...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Send className="w-4 h-4 text-gold-400" />
+                      <span>{t("contact.submitInquiry") || "Submit Inquiry"}</span>
+                    </>
+                  )}
                 </button>
               </form>
             )}

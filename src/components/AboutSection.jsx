@@ -4,9 +4,12 @@ import React from "react";
 import { Sparkles, Award, CheckCircle2 } from "lucide-react";
 import { siteConfig } from "../config/siteConfig";
 import { useLanguage } from "../context/LanguageContext";
+import { useStore } from "../context/StoreContext";
 
 export default function AboutSection() {
   const { t } = useLanguage();
+  const { siteSettings } = useStore();
+  const aboutImageUrl = siteSettings?.aboutImage?.url || "https://images.unsplash.com/photo-1615485290382-441e4d049cb5?auto=format&fit=crop&w=1200&q=80";
 
   const highlights = [
     {
@@ -38,8 +41,8 @@ export default function AboutSection() {
           <div className="relative">
             <div className="relative z-10 rounded-3xl overflow-hidden border-2 border-gold-500/30 shadow-2xl">
               <img
-                src="https://images.unsplash.com/photo-1615485290382-441e4d049cb5?auto=format&fit=crop&w=1200&q=80"
-                alt="Traditional Indian spice grinding and heritage harvesting"
+                src={aboutImageUrl}
+                alt={siteSettings?.aboutImage?.title || "Traditional Indian spice grinding and heritage harvesting"}
                 className="w-full h-[450px] sm:h-[520px] object-cover object-center"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-forest-950/90 via-transparent to-transparent" />

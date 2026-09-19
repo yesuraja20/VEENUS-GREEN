@@ -230,8 +230,14 @@ export default function Footer({ onCategoryClick }) {
         {/* Bottom bar */}
         <div className="mt-12 pt-8 border-t border-forest-900 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-cream-400">
           <p>© 2026 {siteConfig.legalName}. {t("footer.rights") || "All Rights Reserved."}</p>
-          <div className="flex items-center gap-6">
-            <span>{t("footer.tagline") || "Pure Spices • Authentic Taste"}</span>
+          <div className="flex items-center gap-5">
+            <span className="hidden md:inline">{t("footer.tagline") || "Pure Spices • Authentic Taste"}</span>
+            <Link
+              href="/admin"
+              className="text-[11px] text-cream-300 hover:text-gold-300 font-semibold px-2 py-1 rounded bg-forest-900/60 hover:bg-forest-900 border border-forest-800 transition-colors"
+            >
+              🔒 Admin Portal
+            </Link>
             <button
               onClick={scrollToTop}
               className="p-2 rounded-xl bg-forest-900 hover:bg-forest-800 text-gold-400 flex items-center gap-1 transition-colors"

@@ -4,9 +4,12 @@ import React from "react";
 import { ArrowRight, Sparkles, Award, ShieldCheck, Truck, Flame } from "lucide-react";
 import { siteConfig } from "../config/siteConfig";
 import { useLanguage } from "../context/LanguageContext";
+import { useStore } from "../context/StoreContext";
 
 export default function Hero() {
   const { t } = useLanguage();
+  const { siteSettings } = useStore();
+  const heroImageUrl = siteSettings?.heroImage?.url || "https://images.unsplash.com/photo-1596040033229-a9821ebd058d?auto=format&fit=crop&w=2000&q=85";
 
   return (
     <section
@@ -16,8 +19,8 @@ export default function Hero() {
       {/* Background Image with Cinematic Luxury Overlays */}
       <div className="absolute inset-0 z-0">
         <img
-          src="https://images.unsplash.com/photo-1596040033229-a9821ebd058d?auto=format&fit=crop&w=2000&q=85"
-          alt="Traditional Indian Spices Assortment"
+          src={heroImageUrl}
+          alt={siteSettings?.heroImage?.title || "Traditional Indian Spices Assortment"}
           className="w-full h-full object-cover object-center scale-105 transform motion-safe:animate-pulse-subtle filter brightness-50 contrast-125"
         />
         {/* Multi-layered Gradients for readability and deep forest aesthetic */}
