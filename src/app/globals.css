@@ -82,3 +82,30 @@ body {
   background: #d4af37;
   color: #0d281e;
 }
+
+/* Printable Bill & Receipt Styles */
+@media print {
+  body {
+    background-color: #ffffff !important;
+    color: #000000 !important;
+  }
+  body * {
+    visibility: hidden;
+  }
+  #printable-bill,
+  #printable-bill * {
+    visibility: visible;
+  }
+  #printable-bill {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    margin: 0;
+    padding: 24px;
+    background: #ffffff !important;
+    color: #1a2e26 !important;
+    display: block !important;
+  }
+}
+

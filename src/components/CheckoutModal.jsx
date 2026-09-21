@@ -22,6 +22,7 @@ import {
   CreditCard,
   Lock,
   Loader2,
+  Printer,
 } from "lucide-react";
 
 export default function CheckoutModal() {
@@ -107,64 +108,104 @@ export default function CheckoutModal() {
 
   // Online Payment (Razorpay UPI / Cards / NetBanking)
   const handleOnlinePayment = async (e) => {
-    e.preventDefault();
+    e?.preventDefault?.();
     if (!validateForm()) return;
     setIsProcessingPayment(true);
     setPaymentError(null);
 
+    const snapshotItems = [...cartItems];
+    const snapshotCustomer = { ...formData };
+    const snapshotSubtotal = subtotal;
+    const snapshotShippingFee = shippingFee;
+    const snapshotGrandTotal = grandTotal;
+
     try {
-      // 1. Create order on server
+      // 1. Create order on backend (with server-side amount & items validation)
       const res = await fetch("/api/payment/create-order", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          amount: grandTotal,
-          customer: formData,
+          amount: snapshotGrandTotal,
+          customer: snapshotCustomer,
+          items: snapshotItems,
         }),
       });
 
       const orderData = await res.json();
       if (!orderData.success) {
-        throw new Error(orderData.error || "Failed to initiate payment");
+        throw new Error(orderData.error || "Failed to initiate payment gateway.");
       }
 
-      // If simulated or development mode (keys not yet configured)
+      // If simulated (keys not configured or in development preview)
       if (orderData.isSimulated) {
         const orderId = "VG-" + Math.floor(100000 + Math.random() * 900000);
-        await recordOrder({
+        const simPaymentId = "pay_sim_" + Date.now();
+        const orderPayload = {
           id: orderId,
-          customerName: formData.name,
-          phone: formData.phone,
-          address: formData.address,
-          city: formData.city,
-          pincode: formData.pincode,
-          notes: formData.notes,
-          items: cartItems,
-          subtotal,
-          shippingFee,
-          grandTotal,
+          customerName: snapshotCustomer.name,
+          phone: snapshotCustomer.phone,
+          address: snapshotCustomer.address,
+          city: snapshotCustomer.city,
+          pincode: snapshotCustomer.pincode,
+          notes: snapshotCustomer.notes,
+          items: snapshotItems,
+          subtotal: snapshotSubtotal,
+          shippingFee: snapshotShippingFee,
+          grandTotal: snapshotGrandTotal,
+        };
+
+        // Call verify-payment to verify and save to Supabase from server
+        try {
+          await fetch("/api/payment/verify-payment", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              isSimulated: true,
+              razorpay_order_id: orderData.orderId,
+              razorpay_payment_id: simPaymentId,
+              orderData: orderPayload,
+            }),
+          });
+        } catch (e) {
+          console.warn("Server order recording warn:", e);
+        }
+
+        // Keep StoreContext updated
+        await recordOrder({
+          ...orderPayload,
           paymentMethod: "Online (Razorpay)",
           paymentStatus: "paid",
-          paymentId: "pay_sim_" + Date.now(),
+          paymentId: simPaymentId,
+          razorpayOrderId: orderData.orderId,
         });
 
         setOrderConfirmed({
           orderId,
+          paymentId: simPaymentId,
+          razorpayOrderId: orderData.orderId,
           date: new Date().toLocaleDateString("en-IN", {
             day: "numeric",
             month: "short",
             year: "numeric",
           }),
-          type: "Online Payment (Paid)",
+          type: "Online (Razorpay - Paid)",
+          customer: snapshotCustomer,
+          items: snapshotItems,
+          subtotal: snapshotSubtotal,
+          shippingFee: snapshotShippingFee,
+          grandTotal: snapshotGrandTotal,
+          isPaid: true,
         });
         clearCart();
         return;
       }
 
-      // Real Razorpay Checkout flow
+      // Real Razorpay Gateway Checkout Flow
       const isLoaded = await loadRazorpayScript();
       if (!isLoaded) {
-        throw new Error("Razorpay payment gateway failed to load. Please check your internet connection.");
+        throw new Error(
+          "Razorpay payment gateway failed to load. Please check your internet connection."
+        );
       }
 
       const options = {
@@ -172,69 +213,104 @@ export default function CheckoutModal() {
         amount: orderData.amount,
         currency: orderData.currency || "INR",
         name: siteConfig.name,
-        description: `Order for ${cartItems.length} item(s)`,
+        description: `Order for ${snapshotItems.length} item(s) - Venus Green Spices`,
         image: "/icon.svg",
         order_id: orderData.orderId,
         prefill: {
-          name: formData.name,
-          contact: formData.phone,
+          name: snapshotCustomer.name,
+          contact: snapshotCustomer.phone,
         },
         theme: {
           color: "#1b382b",
         },
         handler: async function (response) {
           try {
-            // Verify signature
+            setIsProcessingPayment(true);
+            const orderId = "VG-" + Math.floor(100000 + Math.random() * 900000);
+            const orderPayload = {
+              id: orderId,
+              customerName: snapshotCustomer.name,
+              phone: snapshotCustomer.phone,
+              address: snapshotCustomer.address,
+              city: snapshotCustomer.city,
+              pincode: snapshotCustomer.pincode,
+              notes: snapshotCustomer.notes,
+              items: snapshotItems,
+              subtotal: snapshotSubtotal,
+              shippingFee: snapshotShippingFee,
+              grandTotal: snapshotGrandTotal,
+            };
+
+            // 1. Verify payment signature on backend & save to Supabase
             const verifyRes = await fetch("/api/payment/verify-payment", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
-              body: JSON.stringify(response),
+              body: JSON.stringify({
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_signature: response.razorpay_signature,
+                orderData: orderPayload,
+              }),
             });
-            const verifyData = await verifyRes.json();
 
-            const orderId = "VG-" + Math.floor(100000 + Math.random() * 900000);
+            const verifyData = await verifyRes.json();
+            if (!verifyData.success || !verifyData.verified) {
+              throw new Error(verifyData.error || "Payment signature verification failed.");
+            }
+
+            // 2. Sync into client StoreContext cache
             await recordOrder({
-              id: orderId,
-              customerName: formData.name,
-              phone: formData.phone,
-              address: formData.address,
-              city: formData.city,
-              pincode: formData.pincode,
-              notes: formData.notes,
-              items: cartItems,
-              subtotal,
-              shippingFee,
-              grandTotal,
+              ...orderPayload,
               paymentMethod: "Online (Razorpay)",
-              paymentStatus: verifyData.verified ? "paid" : "unverified",
+              paymentStatus: "paid",
               paymentId: response.razorpay_payment_id,
               razorpayOrderId: response.razorpay_order_id,
             });
 
+            // 3. Set confirmed order state with complete snapshot
             setOrderConfirmed({
               orderId,
+              paymentId: response.razorpay_payment_id,
+              razorpayOrderId: response.razorpay_order_id,
               date: new Date().toLocaleDateString("en-IN", {
                 day: "numeric",
                 month: "short",
                 year: "numeric",
               }),
               type: "Online (Razorpay - Paid)",
+              customer: snapshotCustomer,
+              items: snapshotItems,
+              subtotal: snapshotSubtotal,
+              shippingFee: snapshotShippingFee,
+              grandTotal: snapshotGrandTotal,
+              isPaid: true,
             });
+
+            // 4. Clear cart
             clearCart();
           } catch (verErr) {
-            console.error("Payment verification failed:", verErr);
+            console.error("Payment verification error:", verErr);
+            setPaymentError(
+              verErr.message || "Payment verification failed. Please contact customer support."
+            );
+          } finally {
+            setIsProcessingPayment(false);
           }
         },
         modal: {
           ondismiss: function () {
             setIsProcessingPayment(false);
           },
+          escape: true,
+          backdropclose: false,
         },
       };
 
       const razorpayInstance = new window.Razorpay(options);
       razorpayInstance.on("payment.failed", function (resp) {
-        setPaymentError(resp.error?.description || "Payment was not successful. Please try again.");
+        setPaymentError(
+          resp.error?.description || "Payment was not successful. Please try again."
+        );
         setIsProcessingPayment(false);
       });
       razorpayInstance.open();
@@ -251,31 +327,37 @@ export default function CheckoutModal() {
     e.preventDefault();
     if (!validateForm()) return;
 
+    const snapshotItems = [...cartItems];
+    const snapshotCustomer = { ...formData };
+    const snapshotSubtotal = subtotal;
+    const snapshotShippingFee = shippingFee;
+    const snapshotGrandTotal = grandTotal;
+
     const orderId = "VG-" + Math.floor(100000 + Math.random() * 900000);
 
     // Save order in Supabase
     await recordOrder({
       id: orderId,
-      customerName: formData.name,
-      phone: formData.phone,
-      address: formData.address,
-      city: formData.city,
-      pincode: formData.pincode,
-      notes: formData.notes,
-      items: cartItems,
-      subtotal,
-      shippingFee,
-      grandTotal,
+      customerName: snapshotCustomer.name,
+      phone: snapshotCustomer.phone,
+      address: snapshotCustomer.address,
+      city: snapshotCustomer.city,
+      pincode: snapshotCustomer.pincode,
+      notes: snapshotCustomer.notes,
+      items: snapshotItems,
+      subtotal: snapshotSubtotal,
+      shippingFee: snapshotShippingFee,
+      grandTotal: snapshotGrandTotal,
       paymentMethod: "WhatsApp Order",
       paymentStatus: "pending",
     });
 
     const whatsappUrl = generateWhatsAppOrderUrl({
-      customer: formData,
-      items: cartItems,
-      subtotal,
-      shippingFee,
-      grandTotal,
+      customer: snapshotCustomer,
+      items: snapshotItems,
+      subtotal: snapshotSubtotal,
+      shippingFee: snapshotShippingFee,
+      grandTotal: snapshotGrandTotal,
     });
 
     // Open WhatsApp in new window
@@ -290,6 +372,12 @@ export default function CheckoutModal() {
         year: "numeric",
       }),
       type: "WhatsApp Order",
+      customer: snapshotCustomer,
+      items: snapshotItems,
+      subtotal: snapshotSubtotal,
+      shippingFee: snapshotShippingFee,
+      grandTotal: snapshotGrandTotal,
+      isPaid: false,
     });
 
     clearCart();
@@ -300,21 +388,27 @@ export default function CheckoutModal() {
     e.preventDefault();
     if (!validateForm()) return;
 
+    const snapshotItems = [...cartItems];
+    const snapshotCustomer = { ...formData };
+    const snapshotSubtotal = subtotal;
+    const snapshotShippingFee = shippingFee;
+    const snapshotGrandTotal = grandTotal;
+
     const orderId = "VG-" + Math.floor(100000 + Math.random() * 900000);
 
     // Save order in Supabase
     await recordOrder({
       id: orderId,
-      customerName: formData.name,
-      phone: formData.phone,
-      address: formData.address,
-      city: formData.city,
-      pincode: formData.pincode,
-      notes: formData.notes,
-      items: cartItems,
-      subtotal,
-      shippingFee,
-      grandTotal,
+      customerName: snapshotCustomer.name,
+      phone: snapshotCustomer.phone,
+      address: snapshotCustomer.address,
+      city: snapshotCustomer.city,
+      pincode: snapshotCustomer.pincode,
+      notes: snapshotCustomer.notes,
+      items: snapshotItems,
+      subtotal: snapshotSubtotal,
+      shippingFee: snapshotShippingFee,
+      grandTotal: snapshotGrandTotal,
       paymentMethod: "Cash on Delivery",
       paymentStatus: "pending",
     });
@@ -327,6 +421,12 @@ export default function CheckoutModal() {
         year: "numeric",
       }),
       type: "Cash on Delivery",
+      customer: snapshotCustomer,
+      items: snapshotItems,
+      subtotal: snapshotSubtotal,
+      shippingFee: snapshotShippingFee,
+      grandTotal: snapshotGrandTotal,
+      isPaid: false,
     });
 
     clearCart();
@@ -375,65 +475,129 @@ export default function CheckoutModal() {
 
         {orderConfirmed ? (
           /* Confirmation Success Screen */
-          <div className="p-6 sm:p-8 text-center space-y-6">
+          <div className="p-6 sm:p-8 text-center space-y-5">
             <div className="w-16 h-16 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center mx-auto shadow-inner">
               <CheckCircle2 className="w-10 h-10" />
             </div>
 
             <div>
               <h4 className="font-serif text-2xl font-bold text-forest-950">
-                {t("checkout.thankYou", { name: formData.name })}
+                {t("checkout.thankYou", { name: orderConfirmed.customer?.name || formData.name })}
               </h4>
               <p className="text-xs sm:text-sm text-forest-800 mt-1.5 max-w-md mx-auto leading-relaxed">
                 {t("checkout.orderReceived", { orderId: orderConfirmed.orderId })}
               </p>
+
+              {/* Verified Razorpay Payment Badge */}
+              {orderConfirmed.paymentId && (
+                <div className="mt-3 inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-emerald-100/90 border border-emerald-300 text-emerald-800 text-xs font-semibold shadow-xs">
+                  <ShieldCheck className="w-4 h-4 text-emerald-700" />
+                  <span>Razorpay Payment Verified</span>
+                  <span className="font-mono text-[11px] bg-white/90 px-1.5 py-0.5 rounded text-emerald-900 border border-emerald-200">
+                    {orderConfirmed.paymentId}
+                  </span>
+                </div>
+              )}
             </div>
 
             {/* Delivery address & Summary review */}
-            <div className="bg-white p-5 rounded-2xl border border-cream-200 text-left text-xs space-y-2 max-w-md mx-auto">
+            <div className="bg-white p-5 rounded-2xl border border-cream-200 text-left text-xs space-y-2.5 max-w-md mx-auto shadow-sm">
               <div className="flex justify-between border-b border-cream-200 pb-2">
                 <span className="text-forest-600">{t("checkout.orderDate")}</span>
                 <span className="font-bold text-forest-950">{orderConfirmed.date}</span>
               </div>
               <div className="flex justify-between border-b border-cream-200 pb-2">
+                <span className="text-forest-600">Payment Method</span>
+                <span className="font-bold text-emerald-800">{orderConfirmed.type}</span>
+              </div>
+              <div className="flex justify-between border-b border-cream-200 pb-2">
                 <span className="text-forest-600">{t("checkout.mobileContact")}</span>
-                <span className="font-bold text-forest-950">+91 {formData.phone}</span>
+                <span className="font-bold text-forest-950">+91 {orderConfirmed.customer?.phone || formData.phone}</span>
               </div>
               <div className="flex justify-between border-b border-cream-200 pb-2">
                 <span className="text-forest-600">{t("checkout.shipTo")}</span>
-                <span className="font-bold text-forest-950 text-right">
-                  {formData.address}, {formData.city} - {formData.pincode}
+                <span className="font-bold text-forest-950 text-right max-w-[220px]">
+                  {orderConfirmed.customer?.address || formData.address}, {orderConfirmed.customer?.city || formData.city} - {orderConfirmed.customer?.pincode || formData.pincode}
                 </span>
               </div>
-              <div className="flex justify-between pt-1 font-serif text-sm font-bold text-forest-950">
-                <span>{t("cartDrawer.grandTotal")}:</span>
-                <span className="text-emerald-800">₹{grandTotal}</span>
+
+              {/* Items List in Confirmation */}
+              {orderConfirmed.items && orderConfirmed.items.length > 0 && (
+                <div className="py-2 border-b border-cream-200">
+                  <span className="text-forest-600 font-semibold block mb-1.5">
+                    Ordered Items ({orderConfirmed.items.length}):
+                  </span>
+                  <div className="space-y-1 max-h-28 overflow-y-auto pr-1 text-[11px]">
+                    {orderConfirmed.items.map((it, idx) => (
+                      <div key={it.cartKey || idx} className="flex justify-between text-forest-800">
+                        <span className="truncate pr-2">
+                          {it.name} ({it.selectedWeight?.label}) × {it.quantity}
+                        </span>
+                        <span className="font-bold flex-shrink-0 text-forest-950">
+                          ₹{(it.selectedWeight?.price || it.price) * it.quantity}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              <div className="flex justify-between text-xs text-forest-700">
+                <span>{t("cartDrawer.subtotal")}:</span>
+                <span className="font-bold text-forest-950">₹{orderConfirmed.subtotal || subtotal}</span>
               </div>
+              <div className="flex justify-between text-xs text-forest-700">
+                <span>{t("cartDrawer.shipping")}:</span>
+                <span className="font-bold text-emerald-800">
+                  {(orderConfirmed.shippingFee ?? shippingFee) === 0
+                    ? t("cartDrawer.free")
+                    : `₹${orderConfirmed.shippingFee ?? shippingFee}`}
+                </span>
+              </div>
+              <div className="flex justify-between pt-2 border-t border-cream-200 font-serif text-sm font-bold text-forest-950">
+                <span>{t("cartDrawer.grandTotal")}:</span>
+                <span className="text-emerald-800 text-base">₹{orderConfirmed.grandTotal || grandTotal}</span>
+              </div>
+              <p className="text-[10px] text-forest-500 italic text-center pt-1">
+                All prices are inclusive of 5% GST.
+              </p>
             </div>
 
-            <div className="pt-2 flex flex-col sm:flex-row gap-3 justify-center">
+            {/* Action Buttons: Print Bill, WhatsApp, Back to Store */}
+            <div className="pt-2 flex flex-col sm:flex-row gap-2.5 justify-center">
               <button
-                onClick={handleClose}
-                className="px-6 py-3 rounded-xl bg-forest-900 hover:bg-forest-800 text-gold-300 font-bold text-xs uppercase tracking-wider transition-all"
+                type="button"
+                onClick={() => window.print()}
+                className="px-5 py-3 rounded-xl bg-forest-100 hover:bg-forest-200 text-forest-900 font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 border border-forest-300 transition-all shadow-sm"
               >
-                {t("checkout.backToStore")}
+                <Printer className="w-4 h-4 text-forest-700" />
+                <span>Print Bill / Receipt</span>
               </button>
 
               <button
+                type="button"
                 onClick={() => {
                   const url = generateWhatsAppOrderUrl({
-                    customer: formData,
-                    items: cartItems,
-                    subtotal,
-                    shippingFee,
-                    grandTotal,
+                    customer: orderConfirmed.customer || formData,
+                    items: orderConfirmed.items || [],
+                    subtotal: orderConfirmed.subtotal || subtotal,
+                    shippingFee: orderConfirmed.shippingFee ?? shippingFee,
+                    grandTotal: orderConfirmed.grandTotal || grandTotal,
                   });
                   window.open(url, "_blank");
                 }}
-                className="px-6 py-3 rounded-xl bg-emerald-700 hover:bg-emerald-600 text-cream-50 font-bold text-xs flex items-center justify-center gap-2 shadow-sm"
+                className="px-5 py-3 rounded-xl bg-emerald-700 hover:bg-emerald-600 text-cream-50 font-bold text-xs flex items-center justify-center gap-2 shadow-sm transition-all"
               >
                 <MessageCircle className="w-4 h-4 text-emerald-300" />
                 <span>{t("checkout.trackWhatsApp")}</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={handleClose}
+                className="px-5 py-3 rounded-xl bg-forest-900 hover:bg-forest-800 text-gold-300 font-bold text-xs uppercase tracking-wider transition-all"
+              >
+                {t("checkout.backToStore")}
               </button>
             </div>
           </div>
@@ -683,6 +847,138 @@ export default function CheckoutModal() {
           </div>
         )}
       </div>
+
+      {/* Printable Tax Invoice / Bill (Only visible when printing) */}
+      {orderConfirmed && (
+        <div id="printable-bill" className="hidden">
+          <div className="max-w-2xl mx-auto p-4 bg-white text-forest-950 font-sans">
+            {/* Header */}
+            <div className="border-b-2 border-forest-900 pb-4 mb-4 flex justify-between items-start">
+              <div>
+                <h1 className="font-serif text-2xl font-bold text-forest-950">
+                  {siteConfig.legalName || siteConfig.name}
+                </h1>
+                <p className="text-xs text-forest-700 italic">{siteConfig.tagline}</p>
+                <p className="text-xs text-forest-600 mt-1 max-w-sm">
+                  {siteConfig.address?.fullAddress}
+                </p>
+                <p className="text-xs text-forest-600">
+                  Phone: {siteConfig.whatsappDisplayNumber || siteConfig.phone} | Email: {siteConfig.email}
+                </p>
+              </div>
+              <div className="text-right">
+                <span className="inline-block px-2.5 py-1 bg-forest-900 text-gold-300 text-xs font-bold rounded uppercase">
+                  Tax Invoice
+                </span>
+                <p className="font-mono text-xs font-bold mt-2">
+                  Invoice #: {orderConfirmed.orderId}
+                </p>
+                <p className="text-[11px] text-forest-600">Date: {orderConfirmed.date}</p>
+                <p className="text-[11px] font-semibold text-emerald-800">
+                  Payment: {orderConfirmed.type}
+                </p>
+                {orderConfirmed.paymentId && (
+                  <p className="text-[10px] font-mono text-forest-500">
+                    Ref ID: {orderConfirmed.paymentId}
+                  </p>
+                )}
+              </div>
+            </div>
+
+            {/* Billed To */}
+            <div className="bg-cream-100 p-3 rounded-lg border border-cream-200 mb-4 text-xs">
+              <h3 className="font-bold text-forest-900 uppercase text-[10px] tracking-wider mb-1">
+                Billed & Shipped To:
+              </h3>
+              <p className="font-bold text-forest-950 text-sm">{orderConfirmed.customer?.name}</p>
+              <p className="text-forest-800">+91 {orderConfirmed.customer?.phone}</p>
+              <p className="text-forest-800">
+                {orderConfirmed.customer?.address}, {orderConfirmed.customer?.city} - {orderConfirmed.customer?.pincode}
+              </p>
+              {orderConfirmed.customer?.notes && (
+                <p className="text-forest-600 italic mt-0.5">
+                  Notes: {orderConfirmed.customer?.notes}
+                </p>
+              )}
+            </div>
+
+            {/* Items Table */}
+            <table className="w-full text-left border-collapse text-xs mb-4">
+              <thead>
+                <tr className="border-b-2 border-forest-900 bg-cream-100 text-forest-900 font-bold">
+                  <th className="py-2 px-2 w-8">#</th>
+                  <th className="py-2 px-2">Description</th>
+                  <th className="py-2 px-2 text-center">Pack</th>
+                  <th className="py-2 px-2 text-center">Qty</th>
+                  <th className="py-2 px-2 text-right">Price</th>
+                  <th className="py-2 px-2 text-right">Total</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-cream-200">
+                {(orderConfirmed.items || []).map((item, index) => {
+                  const unitPrice = item.selectedWeight?.price || item.price;
+                  const itemTotal = unitPrice * item.quantity;
+                  return (
+                    <tr key={item.cartKey || index}>
+                      <td className="py-2 px-2">{index + 1}</td>
+                      <td className="py-2 px-2 font-semibold">
+                        {item.name}
+                        {item.tamilName && (
+                          <span className="text-forest-600 font-normal ml-1">
+                            ({item.tamilName})
+                          </span>
+                        )}
+                      </td>
+                      <td className="py-2 px-2 text-center text-forest-700">
+                        {item.selectedWeight?.label || "-"}
+                      </td>
+                      <td className="py-2 px-2 text-center font-bold">
+                        {item.quantity}
+                      </td>
+                      <td className="py-2 px-2 text-right">₹{unitPrice}</td>
+                      <td className="py-2 px-2 text-right font-bold">₹{itemTotal}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+
+            {/* Totals */}
+            <div className="flex justify-end border-t-2 border-forest-900 pt-3 mb-4">
+              <div className="w-64 space-y-1 text-xs">
+                <div className="flex justify-between text-forest-700">
+                  <span>Subtotal:</span>
+                  <span className="font-semibold text-forest-950">₹{orderConfirmed.subtotal}</span>
+                </div>
+                <div className="flex justify-between text-forest-700">
+                  <span>Shipping:</span>
+                  <span className="font-semibold text-emerald-800">
+                    {orderConfirmed.shippingFee === 0 ? "FREE" : `₹${orderConfirmed.shippingFee}`}
+                  </span>
+                </div>
+                <div className="flex justify-between text-sm font-bold text-forest-950 border-t border-cream-300 pt-1 font-serif">
+                  <span>Grand Total:</span>
+                  <span className="text-emerald-900">₹{orderConfirmed.grandTotal}</span>
+                </div>
+                <p className="text-[10px] text-forest-500 italic text-right pt-0.5">
+                  All prices inclusive of 5% GST.
+                </p>
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div className="border-t border-cream-200 pt-3 text-center text-[11px] text-forest-600">
+              <p className="font-semibold text-forest-800">
+                Thank you for choosing {siteConfig.name}!
+              </p>
+              <p>100% Pure, unadulterated estate spices delivered to your kitchen.</p>
+              <p className="text-[10px] mt-1 text-forest-500">
+                For queries, reach us on WhatsApp: {siteConfig.whatsappDisplayNumber || siteConfig.phone}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -1,4 +1,5 @@
 import "./globals.css";
+import Script from "next/script";
 import { StoreProvider } from "../context/StoreContext";
 import { CartProvider } from "../context/CartContext";
 import { LanguageProvider } from "../context/LanguageContext";
@@ -65,6 +66,10 @@ export default function RootLayout({ children }) {
             </CartProvider>
           </LanguageProvider>
         </StoreProvider>
+        <Script
+          src="https://checkout.razorpay.com/v1/checkout.js"
+          strategy="lazyOnload"
+        />
       </body>
     </html>
   );
