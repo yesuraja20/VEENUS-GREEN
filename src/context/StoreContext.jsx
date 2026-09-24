@@ -280,7 +280,14 @@ export function StoreProvider({ children }) {
     };
 
     setOrders((prev) => {
-      const updated = [record, ...prev];
+      const existsIndex = prev.findIndex((o) => o.id === record.id);
+      let updated;
+      if (existsIndex > -1) {
+        updated = [...prev];
+        updated[existsIndex] = record;
+      } else {
+        updated = [record, ...prev];
+      }
       try {
         localStorage.setItem("venus_green_local_orders", JSON.stringify(updated));
       } catch (e) {}

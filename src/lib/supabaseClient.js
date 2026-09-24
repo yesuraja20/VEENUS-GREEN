@@ -241,18 +241,18 @@ export async function submitOrderToDB(order) {
     subtotal: order.subtotal,
     shipping_fee: order.shippingFee || 0,
     grand_total: order.grandTotal,
-    payment_method: order.paymentMethod,
-    payment_status: order.paymentStatus || "pending",
-    payment_id: order.paymentId || null,
-    razorpay_order_id: order.razorpayOrderId || null,
+    payment_method: order.paymentMethod || order.payment_method || "Online (Razorpay)",
+    payment_status: order.paymentStatus || order.payment_status || "paid",
+    payment_id: order.paymentId || order.payment_id || null,
+    razorpay_order_id: order.razorpayOrderId || order.razorpay_order_id || null,
     status: order.status || "received",
-    created_at: new Date().toISOString(),
+    created_at: order.createdAt || order.created_at || new Date().toISOString(),
     updated_at: new Date().toISOString(),
   };
 
   const { data, error } = await client
     .from("orders")
-    .insert([payload])
+    .upsert(payload, { onConflict: "id" })
     .select();
 
   if (error) throw error;

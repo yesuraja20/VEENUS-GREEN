@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server";
 import crypto from "crypto";
-import { saveVerifiedOrderToSupabase } from "../../../../lib/supabaseServer";
+import {
+  saveVerifiedOrderToSupabase,
+  getSupabaseServerClient,
+} from "../../../../lib/supabaseServer";
 
 export async function POST(req) {
   try {
@@ -52,14 +55,23 @@ export async function POST(req) {
       );
     }
 
-    // 3. Cryptographic Signature Verification using server-only RAZORPAY_KEY_SECRET
+    // 3. Cryptographic Signature Verification using server-only RAZORPAY_KEY_SECRET (Timing-safe comparison)
     const text = `${razorpay_order_id}|${razorpay_payment_id}`;
     const expectedSignature = crypto
       .createHmac("sha256", keySecret)
       .update(text)
       .digest("hex");
 
-    const isAuthentic = expectedSignature === razorpay_signature;
+    let isAuthentic = false;
+    try {
+      const expectedBuf = Buffer.from(expectedSignature, "utf8");
+      const actualBuf = Buffer.from(razorpay_signature, "utf8");
+      if (expectedBuf.length === actualBuf.length) {
+        isAuthentic = crypto.timingSafeEqual(expectedBuf, actualBuf);
+      }
+    } catch {
+      isAuthentic = false;
+    }
 
     if (!isAuthentic) {
       console.warn(
@@ -75,7 +87,32 @@ export async function POST(req) {
       );
     }
 
-    // 4. On successful verification: Save order to Supabase
+    // 4. Duplicate Payment Prevention: Check if paymentId already processed
+    const client = getSupabaseServerClient();
+    if (client) {
+      try {
+        const { data: existingPayment } = await client
+          .from("orders")
+          .select("*")
+          .eq("payment_id", razorpay_payment_id)
+          .maybeSingle();
+
+        if (existingPayment) {
+          return NextResponse.json({
+            success: true,
+            verified: true,
+            isDuplicate: true,
+            paymentId: razorpay_payment_id,
+            order: { ...existingPayment, savedToDb: true },
+            message: "Payment already verified and recorded.",
+          });
+        }
+      } catch (dupCheckErr) {
+        console.warn("Duplicate check non-blocking warning:", dupCheckErr.message);
+      }
+    }
+
+    // 5. On successful verification: Save order to Supabase
     const confirmedOrderPayload = {
       ...(orderData || {}),
       paymentMethod: "Online (Razorpay)",

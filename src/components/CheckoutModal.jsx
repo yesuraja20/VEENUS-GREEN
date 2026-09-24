@@ -98,6 +98,18 @@ export default function CheckoutModal() {
         resolve(true);
         return;
       }
+      const existingScript = document.querySelector(
+        'script[src="https://checkout.razorpay.com/v1/checkout.js"]'
+      );
+      if (existingScript) {
+        if (window.Razorpay) {
+          resolve(true);
+        } else {
+          existingScript.addEventListener("load", () => resolve(true));
+          existingScript.addEventListener("error", () => resolve(false));
+        }
+        return;
+      }
       const script = document.createElement("script");
       script.src = "https://checkout.razorpay.com/v1/checkout.js";
       script.onload = () => resolve(true);
@@ -214,7 +226,10 @@ export default function CheckoutModal() {
         currency: orderData.currency || "INR",
         name: siteConfig.name,
         description: `Order for ${snapshotItems.length} item(s) - Venus Green Spices`,
-        image: "/icon.svg",
+        image:
+          typeof window !== "undefined"
+            ? `${window.location.origin}/icon.svg`
+            : "/icon.svg",
         order_id: orderData.orderId,
         prefill: {
           name: snapshotCustomer.name,
@@ -272,11 +287,14 @@ export default function CheckoutModal() {
               orderId,
               paymentId: response.razorpay_payment_id,
               razorpayOrderId: response.razorpay_order_id,
-              date: new Date().toLocaleDateString("en-IN", {
-                day: "numeric",
-                month: "short",
-                year: "numeric",
-              }),
+              date: new Date().toLocaleDateString(
+                currentLanguage === "en" ? "en-IN" : `${currentLanguage}-IN`,
+                {
+                  day: "numeric",
+                  month: "short",
+                  year: "numeric",
+                }
+              ),
               type: "Online (Razorpay - Paid)",
               customer: snapshotCustomer,
               items: snapshotItems,
